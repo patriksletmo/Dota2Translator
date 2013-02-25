@@ -4,6 +4,8 @@
 ; Used to remove all the files in a directory.
 !include "RemoveFilesAndSubDirs.nsh"
 
+!include "nsProcess.nsh"
+
 ; Define name and output file.
 Name "Dota 2 Translator"
 OutFile "Dota2Translator_Setup.exe"
@@ -37,6 +39,15 @@ RequestExecutionLevel admin
 !insertmacro MUI_LANGUAGE "English"
 
 Section "Dota 2 Translator"
+	; Check if Dota 2 is running.
+	${nsProcess::FindProcess} "dota.exe" $1
+	IntCmp $1 0 running
+		Goto notRunning
+	running:
+		MessageBox MB_OK|MB_ICONEXCLAMATION "Please quit Dota 2 before proceeding." /SD IDOK
+		Abort
+	notRunning:
+
 	SetOutPath "$INSTDIR"
 	
 	; Copy the program files.
@@ -74,6 +85,12 @@ Section "Dota 2 Translator"
 	createDirectory "$SMPROGRAMS\Dota 2 Translator"
 	createShortCut "$SMPROGRAMS\Dota 2 Translator\Dota 2 Translator.lnk" "$INSTDIR\Dota2ChatInterface.exe" "" ""
 	createShortCut "$SMPROGRAMS\Dota 2 Translator\Uninstall.lnk" "$INSTDIR\uninstall.exe" "" ""
+SectionEnd
+
+Section ".Net Framework 4.0 Client Profile"
+	; Install .Net Framework 4.0 Client Profile.
+	File "Dependencies\dotNetFx40_Client_setup.exe"
+	ExecWait "$INSTDIR\dotNetFx40_Client_setup.exe /passive"
 SectionEnd
 
 Section "WinPcap"
