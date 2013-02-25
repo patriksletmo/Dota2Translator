@@ -1,0 +1,17 @@
+﻿<Window x:Class="Dota2ChatInterface.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Dota 2 Translator - Patrik Sletmo" Height="600" Width="1000">
+    <Window.Resources>
+
+    </Window.Resources>
+    <Grid Background="Black">
+        <Image HorizontalAlignment="Center" Height="200" Margin="0" VerticalAlignment="Center" Source="..\Images\DotA-2-Logo.jpg" Opacity="0.3"/>
+        <ScrollViewer x:Name="Scroller" VerticalScrollBarVisibility="Hidden">
+            <StackPanel x:Name="ChatContainer" VerticalAlignment="Bottom" Margin="0,0,0,10" >
+            </StackPanel>
+        </ScrollViewer>
+        <Button x:Name="InjectButton" Content="Add Overlay" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,10,85,0" Padding="8" Style="{DynamicResource DefBtn}" />
+        <Button x:Name="SettingsButton" Content="Settings" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,10,10,0" Padding="8" Style="{DynamicResource DefBtn}" />
+    </Grid>
+</Window>

@@ -1,0 +1,27 @@
+﻿<Window
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:Dota2ChatInterface" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="d" x:Class="Dota2ChatInterface.AdapterChooser"
+        Title="Dota 2 Translator - Patrik Sletmo" Height="300" Width="730" Background="#FF1D1D1D" ResizeMode="NoResize">
+    <Grid>
+        <Grid x:Name="MainLayout" Visibility="Visible">
+            <Label Content="Is this your current network adapter?" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Foreground="White" FontSize="34"/>
+            <Label x:Name="DefaultIP" Content="Loading..." HorizontalAlignment="Left" Margin="47,80,0,0" VerticalAlignment="Top" Foreground="White" FontSize="34"/>
+            <Label x:Name="DefaultDescription" Content="" HorizontalAlignment="Left" Margin="47,120,0,0" VerticalAlignment="Top" Foreground="#FFA0A0A0" FontSize="18"/>
+            <Button x:Name="DefaultButton" Content="Yes" HorizontalAlignment="Right" Margin="0,0,99,10" VerticalAlignment="Bottom" Width="75" Style="{DynamicResource DefBtn}" IsEnabled="False" />
+            <Button x:Name="AdvancedButton" Content="No" HorizontalAlignment="Right" Margin="0,0,10,10" VerticalAlignment="Bottom" Width="75" Style="{DynamicResource DefBtn}" IsEnabled="False" />
+        </Grid>
+        <Grid x:Name="AdvancedLayout" Visibility="Collapsed">
+            <Label Content="Please select your network adapter" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Foreground="White" FontSize="34"/>
+            <ListBox x:Name="AvailableNetworkAdapters" HorizontalAlignment="Stretch" Margin="10,70,10,60" Width="672" Background="{x:Null}" BorderBrush="{x:Null}" HorizontalContentAlignment="Stretch">
+                <ListBox.Resources>
+                    <SolidColorBrush x:Key="{x:Static SystemColors.ControlBrushKey}" 
+                         Color="{DynamicResource {x:Static SystemColors.HighlightColorKey}}" />
+                </ListBox.Resources>
+                <local:NetworkAdapterItem />
+            </ListBox>
+            <Button x:Name="SelectButton" Content="Select" HorizontalAlignment="Right" Margin="0,0,10,10" VerticalAlignment="Bottom" Width="75" Style="{DynamicResource DefBtn}" />
+            <Label Content="No adapters found? Attempt to launch this application with administrator privileges." VerticalAlignment="Bottom" HorizontalAlignment="Center" Foreground="Gray" Margin="0,0,0,10" />
+        </Grid>
+    </Grid>
+</Window>
