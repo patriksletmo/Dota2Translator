@@ -20,3 +20,7 @@ DotaDXInject/obj
 
 # Ignore setup executable #
 Setup/Dota2Translator_Setup.exe
+
+# Ignore sdf files #
+*.sdf
+*.sou
