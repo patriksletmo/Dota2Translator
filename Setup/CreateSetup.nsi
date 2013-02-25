@@ -90,7 +90,7 @@ SectionEnd
 Section ".Net Framework 4.0 Client Profile"
 	; Install .Net Framework 4.0 Client Profile.
 	File "Dependencies\dotNetFx40_Client_setup.exe"
-	ExecWait "$INSTDIR\dotNetFx40_Client_setup.exe /passive"
+	ExecWait "$INSTDIR\dotNetFx40_Client_setup.exe /passive /showrmui /promptrestart"
 SectionEnd
 
 Section "WinPcap"
