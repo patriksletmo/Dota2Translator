@@ -71,20 +71,24 @@ namespace Dota2ChatInterface
             AUTO_HIDE.IsChecked = LoadedSettings.AutoHide;
             ADD_ON_STARTUP.IsChecked = LoadedSettings.AddOnStartup;
             OUTPUT_ALL.IsChecked = LoadedSettings.OutputAll;
+            FADE_MESSAGES.IsChecked = LoadedSettings.FadeMessages;
+            FADE_WAIT.Text = LoadedSettings.FadeWait.ToString();
+            FADE_DURATION.Text = LoadedSettings.FadeDuration.ToString();
         }
 
         // Called when SaveButton is clicked.
         public void SaveButton_Click(object sender, EventArgs args)
         {
             // Read values from the fields.
-            StoreTemporarily();
+            Boolean closeWindow = !StoreTemporarily();
 
             // Save to file.
             SettingsHandler.MergeAndSave(LoadedSettings);
             SettingsHandler.SendToOverlay();
 
-            // Close the window.
-            Close();
+            // Close the window if there was no parsing error.
+            if (closeWindow)
+                Close();
         }
 
         // Called when CancelButton is clicked.
@@ -112,14 +116,18 @@ namespace Dota2ChatInterface
         }
 
         // Stores values in the SettingsHandler instance.
-        private void StoreTemporarily()
+        private Boolean StoreTemporarily()
         {
+            // Indicates whether or not all fields were successfully parsed, if one field or more was not parsed the window will not close.
+            Boolean parsingError = false;
+
             LoadedSettings.ExeName = EXE_NAME.Text.Trim(); // One does not simply use whitespace right before or after the file extension.
             LoadedSettings.FontName = FONT_NAME.Text.Trim();
             LoadedSettings.TranslateTo = TRANSLATE_TO.Text.Trim();
             LoadedSettings.AutoHide = AUTO_HIDE.IsChecked.Value;
             LoadedSettings.AddOnStartup = ADD_ON_STARTUP.IsChecked.Value;
             LoadedSettings.OutputAll = OUTPUT_ALL.IsChecked.Value;
+            LoadedSettings.FadeMessages = FADE_MESSAGES.IsChecked.Value;
 
             try
             {
@@ -127,8 +135,64 @@ namespace Dota2ChatInterface
             }
             catch
             {
-                // Number parsing failed. Ignore that for now.
+                // Number parsing failed.
+                parsingError = true;
+
+                // Alert the user.
+                MessageBox.Show("The field 'Messages shown' does not contain a valid integer.", "A setting failed to save");
             }
+
+            try
+            {
+                double fadeWait = Double.Parse(FADE_WAIT.Text.Replace('.', ',').Trim());
+                if (fadeWait < 0)
+                {
+                    // Don't allow values of zero or below.
+                    parsingError = true;
+
+                    // Alert the user.
+                    MessageBox.Show("The field 'Fade delay' must be greater or equal to zero.", "A setting failed to save");
+                }
+                else
+                {
+                    LoadedSettings.FadeWait = fadeWait;
+                }
+            }
+            catch
+            {
+                // Number parsing failed.
+                parsingError = true;
+
+                // Alert the user.
+                MessageBox.Show("The field 'Fade delay' does not contain a valid number.", "A setting failed to save");
+            }
+
+            try
+            {
+                double fadeDuration = Double.Parse(FADE_DURATION.Text.Replace('.', ',').Trim());
+                if (fadeDuration < 0)
+                {
+                    // Don't allow values of zero or below.
+                    parsingError = true;
+
+                    // Alert the user.
+                    MessageBox.Show("The field 'Fade duration' must be greater or equal to zero.", "A setting failed to save");
+                }
+                else
+                {
+                    LoadedSettings.FadeDuration = fadeDuration;
+                }
+            }
+            catch
+            {
+                // Number parsing failed.
+                parsingError = true;
+
+                // Alert the user.
+                MessageBox.Show("The field 'Fade duration' does not contain a valid number.", "A setting failed to save");
+            }
+
+            return parsingError;
         }
     }
 
@@ -146,6 +210,9 @@ namespace Dota2ChatInterface
         public Boolean AutoHide = true;
         public Boolean AddOnStartup = false;
         public Boolean OutputAll = true;
+        public Boolean FadeMessages = true;
+        public double FadeWait = 20.0;
+        public double FadeDuration = 2.5;
         
         // Indicates whether the instance can be saved or not. Only the original instance can be saved.
         private Boolean CanSave = true;
@@ -194,6 +261,11 @@ namespace Dota2ChatInterface
                 AutoHide = reader.ReadBoolean();
                 AddOnStartup = reader.ReadBoolean();
                 OutputAll = reader.ReadBoolean();
+
+                // Read values added to the settings after release.
+                FadeMessages = reader.ReadBoolean();
+                FadeWait = reader.ReadDouble();
+                FadeDuration = reader.ReadDouble();
             }
             catch (Exception)
             {
@@ -233,6 +305,11 @@ namespace Dota2ChatInterface
                 writer.Write(AutoHide);
                 writer.Write(AddOnStartup);
                 writer.Write(OutputAll);
+
+                // Read values added to the settings after release.
+                writer.Write(FadeMessages);
+                writer.Write(FadeWait);
+                writer.Write(FadeDuration);
             }
             catch (Exception)
             {
@@ -256,6 +333,9 @@ namespace Dota2ChatInterface
             this.AutoHide = settingsHandler.AutoHide;
             this.AddOnStartup = settingsHandler.AddOnStartup;
             this.OutputAll = settingsHandler.OutputAll;
+            this.FadeMessages = settingsHandler.FadeMessages;
+            this.FadeWait = settingsHandler.FadeWait;
+            this.FadeDuration = settingsHandler.FadeDuration;
         }
 
         // Returns a copy of the static instance. This copy can not save itself to disk.
@@ -271,6 +351,9 @@ namespace Dota2ChatInterface
             handler.AutoHide = this.AutoHide;
             handler.AddOnStartup = this.AddOnStartup;
             handler.OutputAll = this.OutputAll;
+            handler.FadeMessages = this.FadeMessages;
+            handler.FadeWait = this.FadeWait;
+            handler.FadeDuration = this.FadeDuration;
 
             return handler;
         }
@@ -281,6 +364,9 @@ namespace Dota2ChatInterface
             InjectionHelper.SendSetting("FontName", this.FontName);
             InjectionHelper.SendSetting("MessagesShown", this.MessagesShown);
             InjectionHelper.SendSetting("AutoHide", this.AutoHide);
+            InjectionHelper.SendSetting("FadeMessages", this.FadeMessages);
+            InjectionHelper.SendSetting("FadeWait", this.FadeWait);
+            InjectionHelper.SendSetting("FadeDuration", this.FadeDuration);
         }
 
         // Returns the static instance or creates one if none is available.

@@ -84,6 +84,15 @@ namespace DotaDXInject
         // Whether or not to actually auto hide.
         public Boolean AutoHide = true;
 
+        // Whether or not to fade messages.
+        public Boolean FadeMessages = true;
+
+        // How long the messages will stay visible before fading.
+        public double FadeWait = 20.0;
+
+        // How long the messages will fade.
+        public double FadeDuration = 2.5;
+
         // The time the overlay was added.
         private DateTime TimeAdded;
 
@@ -294,18 +303,46 @@ namespace DotaDXInject
                             {
                                 message.WrapMessage(OverlayFont, AvailableTextWidth);
                             }
+
+                            // Store the original text color.
+                            Color drawColor = TextColor;
+
+                            // Keep track of whether to draw the shadow or not (The shadow will not be drawn when fading).
+                            Boolean drawShadow = true;
+
+                            // Fade the color if in the fading phase.
+                            if (FadeMessages && message.Time.AddSeconds(FadeWait) <= now)
+                            {
+                                if (message.Time.AddSeconds(FadeWait + FadeDuration) <= now)
+                                {
+                                    // The message has already been faded, don't display it.
+                                    i--;
+                                    continue;
+                                }
+
+                                // Fade the color according to the duration and delay of the fade.
+                                float fadeDuration = (message.Time.AddSeconds(FadeWait + FadeDuration) - message.Time.AddSeconds(FadeWait)).Ticks / TimeSpan.TicksPerMillisecond;
+                                float fadeProgress = (now - message.Time.AddSeconds(FadeWait)).Ticks / TimeSpan.TicksPerMillisecond;
+                                float fadePercentage = fadeProgress / fadeDuration;
+                                drawColor = Color.FromArgb((int) ((1f - fadePercentage)*255), drawColor);
+                                drawShadow = false;
+                            }
                             
                             // Draw the wrapped message from the bottom.
                             for (int j = message.WrappedMessage.Length - 1; j >= 0 && y >= 0; j--)
                             {
-                                OverlayFont.DrawString(null, message.WrappedMessage[j], TextStartWidth + FontHeight / 2 + message.SenderWidth, TextStartHeight + 1 + FontHeight * y, TextShadowColor);
-                                OverlayFont.DrawString(null, message.WrappedMessage[j], TextStartWidth - 1 + FontHeight / 2 + message.SenderWidth, TextStartHeight + FontHeight * y, TextColor);
+                                if (drawShadow)
+                                    OverlayFont.DrawString(null, message.WrappedMessage[j], TextStartWidth + FontHeight / 2 + message.SenderWidth, TextStartHeight + 1 + FontHeight * y, TextShadowColor);
+
+                                OverlayFont.DrawString(null, message.WrappedMessage[j], TextStartWidth - 1 + FontHeight / 2 + message.SenderWidth, TextStartHeight + FontHeight * y, drawColor);
 
                                 // Only draw the sender on the upmost line.
                                 if (j == 0)
                                 {
-                                    OverlayFont.DrawString(null, message.Sender + ": ", TextStartWidth, TextStartHeight + 1 + FontHeight * y, TextShadowColor);
-                                    OverlayFont.DrawString(null, message.Sender + ": ", TextStartWidth - 1, TextStartHeight + FontHeight * y, TextColor);
+                                    if (drawShadow)
+                                        OverlayFont.DrawString(null, message.Sender + ": ", TextStartWidth, TextStartHeight + 1 + FontHeight * y, TextShadowColor);
+
+                                    OverlayFont.DrawString(null, message.Sender + ": ", TextStartWidth - 1, TextStartHeight + FontHeight * y, drawColor);
                                 }
                                 y--;
                             }
@@ -379,11 +416,15 @@ namespace DotaDXInject
 
             // The width of the message sender string.
             public int SenderWidth;
+
+            // The time the message was added.
+            public DateTime Time;
             
             public Message(String sender, String content)
             {
                 this.Sender = sender;
                 this.Content = content;
+                this.Time = DateTime.Now;
             }
 
             // Calculates wrapping and places in WrappedMessage.
