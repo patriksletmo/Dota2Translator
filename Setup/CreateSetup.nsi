@@ -119,6 +119,7 @@ Section "Uninstall"
 	rmDir "$INSTDIR\Licenses"
 
 	; Delete dependency installers.
+	Delete "$INSTDIR\dotNetFx40_Client_setup.exe"
 	Delete "$INSTDIR\WinPcap_4_1_2.exe"
 	Delete "$INSTDIR\SlimDX Runtime .NET 4.0 x86 (January 2012).msi"
 	Delete "$INSTDIR\vcredist_x86.exe"
