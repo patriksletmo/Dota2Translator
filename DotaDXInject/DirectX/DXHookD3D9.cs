@@ -84,6 +84,12 @@ namespace DotaDXInject
         // Whether or not to actually auto hide.
         public Boolean AutoHide = true;
 
+        // The time the overlay was added.
+        private DateTime TimeAdded;
+
+        // The amount of milliseconds the success message is shown.
+        private double SuccessMessageTime = 3000;
+
         #region Hooking
 
         private LocalHook Direct3DDevice_EndSceneHook = null;
@@ -107,6 +113,9 @@ namespace DotaDXInject
         // Hooks the DirectX functions we are interested in.
         public void Hook()
         {
+            // Register the time.
+            TimeAdded = DateTime.Now;
+
             // Retrieve the function addresses.
             Device device;
             List<IntPtr> id3dDeviceFunctionAddresses = new List<IntPtr>();
@@ -219,6 +228,9 @@ namespace DotaDXInject
         {
             using (Device device = Device.FromPointer(devicePtr))
             {
+                // Retrieve the current time.
+                DateTime now = DateTime.Now;
+
                 // Retrieve the width and height of the surface.
                 int width, height = 0;
                 using (Surface renderTargetTemp = device.GetRenderTarget(0))
@@ -243,6 +255,18 @@ namespace DotaDXInject
 
                 try
                 {
+                    // Render a success message to indicate that the overlay was added successfully.
+                    long millisSinceAdd = (now - TimeAdded).Ticks / TimeSpan.TicksPerMillisecond;
+                    if (millisSinceAdd < SuccessMessageTime)
+                    {
+                        // Scale the font to the current resolution.
+                        using (SlimDX.Direct3D9.Font successFont = new SlimDX.Direct3D9.Font(device, new System.Drawing.Font("Times New Roman", 80.0f / 1920f * width)))
+                        {
+                            // Draw the font with an alpha value related to the time passed since the overlay was added. The font will be completely invisible when the time has passed.
+                            successFont.DrawString(null, "Overlay added!", 50, 50, Color.FromArgb((int)((SuccessMessageTime - millisSinceAdd) / SuccessMessageTime * 255.0), TextColor));
+                        }
+                    }
+
                     // Don't render the overlay if it's in auto hide mode and hidden.
                     if (!Hide || !AutoHide)
                     {
