@@ -78,7 +78,7 @@ namespace Dota2ChatInterface
 
         #endregion        
 
-        private delegate void DisplayAdapterResults_Delegate();
+        private delegate void VoidDelegate();
 
         public AdapterChooser()
         {
@@ -91,8 +91,24 @@ namespace Dota2ChatInterface
         // Loads the available adapters in the system.
         private void LoadAdapters()
         {
+            String data = null;
+            try
+            {
+                // Try to receive adapter data from WinPcap.
+                data = GetDeviceList();
+            }
+            catch (DllNotFoundException)
+            {
+                // WinPcap is not installed, inform the user.
+                MessageBox.Show("It appears that WinPcap is not installed, please run the WinPcap installer found in the installation directory and then re-run this program.", "Could not detect any device");
+
+                // Close the window.
+                Dispatcher.Invoke(Delegate.CreateDelegate(typeof(VoidDelegate), this, typeof(AdapterChooser).GetMethod("CloseWindow")), new object[] { });
+                return;
+            }
+
             // Split the received data in lines.
-            String[] deviceData = GetDeviceList().Split('\n');
+            String[] deviceData = data.Split('\n');
 
             // The format has 3 fields (lines) per adapter, parse the data accordingly.
             AllAdapters = new Adapter[(deviceData.Length - 1) / 3];
@@ -113,7 +129,13 @@ namespace Dota2ChatInterface
             DefaultAdapter = GetDefaultAdapter(AllAdapters);
 
             // Display the results using the main thread.
-            Dispatcher.Invoke(Delegate.CreateDelegate(typeof(DisplayAdapterResults_Delegate), this, typeof(AdapterChooser).GetMethod("DisplayAdapterResults")), new object[] {} );
+            Dispatcher.Invoke(Delegate.CreateDelegate(typeof(VoidDelegate), this, typeof(AdapterChooser).GetMethod("DisplayAdapterResults")), new object[] {} );
+        }
+
+        // Closes the window from another thread.
+        public void CloseWindow()
+        {
+            Close();
         }
 
         // Displays the result after the adapters has been loaded.
