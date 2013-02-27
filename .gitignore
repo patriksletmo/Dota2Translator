@@ -26,3 +26,6 @@ Setup/Dota2Translator_Setup.exe
 
 # Ignore suo files #
 *.suo
+
+# Ignore open projects #
+*.opensdf
