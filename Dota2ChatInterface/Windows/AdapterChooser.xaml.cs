@@ -139,29 +139,41 @@ namespace Dota2ChatInterface
         // Tries to identify the default adapter.
         private Adapter GetDefaultAdapter(Adapter[] adapters)
         {
-            // Select all adapters in the system.
-            ManagementObjectSearcher searcher = new ManagementObjectSearcher("Select MACAddress,PNPDeviceID FROM Win32_NetworkAdapter WHERE MACAddress IS NOT NULL AND PNPDeviceID IS NOT NULL");
-            ManagementObjectCollection mObject = searcher.Get();
-
-            // Iterate over the adapters.
-            foreach (ManagementObject obj in mObject)
+            try
             {
-                string pnp = obj["PNPDeviceID"].ToString();
+                // Select all adapters in the system.
+                ManagementObjectSearcher searcher = new ManagementObjectSearcher("Select MACAddress,PNPDeviceID FROM Win32_NetworkAdapter WHERE MACAddress IS NOT NULL AND PNPDeviceID IS NOT NULL");
+                ManagementObjectCollection mObject = searcher.Get();
 
-                // Only check against real world adapters (Hamachi, etc will be excluded).
-                if (pnp.Contains("PCI\\"))
+                // Iterate over the adapters.
+                foreach (ManagementObject obj in mObject)
                 {
-                    // Retrieve the MAC address and check against the adapters from winpcap.
-                    string mac = obj["MACAddress"].ToString();
-                    mac = mac.Replace(":", string.Empty);
+                    string pnp = obj["PNPDeviceID"].ToString();
 
-                    foreach (Adapter adapter in adapters)
+                    // Only check against real world adapters (Hamachi, etc will be excluded).
+                    if (pnp.Contains("PCI\\"))
                     {
-                        // Return the adapter if the MAC addresses matches.
-                        if (adapter.MAC.ToLower().Equals(mac.ToLower()))
-                            return adapter;
+                        // Retrieve the MAC address and check against the adapters from winpcap.
+                        string mac = obj["MACAddress"].ToString();
+                        mac = mac.Replace(":", string.Empty);
+
+                        foreach (Adapter adapter in adapters)
+                        {
+                            // Return the adapter if the MAC addresses matches.
+                            if (adapter.MAC.ToLower().Equals(mac.ToLower()))
+                                return adapter;
+                        }
                     }
                 }
+            }
+            catch (COMException)
+            {
+                // Don't crash the application because of missing service.
+                MessageBox.Show("The service 'Windows Management Instrumentation' has to be running in order to determine the default network adapter. All adapters will be shown.", "Unable to find default adapter.");
+            }
+            catch (Exception)
+            {
+                // Make sure no other exception is thrown.
             }
 
             // Return an empty adapter (Found = False).
