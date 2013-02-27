@@ -73,14 +73,24 @@ namespace Dota2ChatInterface
                 InjectionHelper.process = process;
 
                 // Inject DLL into the game.
-                RemoteHooking.Inject(
-                    process.Id,                                     // Process ID
-                    InjectionOptions.Default,                       // InjectionOptions
-                    typeof(DotaInjection).Assembly.Location,        // 32-bit DLL
-                    typeof(DotaInjection).Assembly.Location,        // 64-bit DLL - Will never be used
-                    // Optional parameters.
-                    ChannelName                                     // The name of the IPC channel for the injected assembly to connect to
-                );
+                try
+                {
+                    RemoteHooking.Inject(
+                        process.Id,                                     // Process ID
+                        InjectionOptions.Default,                       // InjectionOptions
+                        typeof(DotaInjection).Assembly.Location,        // 32-bit DLL
+                        typeof(DotaInjection).Assembly.Location,        // 64-bit DLL - Will never be used
+                        // Optional parameters.
+                        ChannelName                                     // The name of the IPC channel for the injected assembly to connect to
+                    );
+                }
+                catch (System.IO.FileNotFoundException)
+                {
+                    // SlimDX is not installed, inform the user.
+                    System.Windows.MessageBox.Show("It appears that SlimDX is not installed, please run the SlimDX installer found in the installation directory and then attempt to add the overlay again. You do NOT have to close this program.\n\nIt should be noted that the installation of SlimDX not always works. Make sure that Dota 2 is closed before attempting to install it.", "Couldn't add overlay");
+
+                    return false;
+                }
 
                 // The game can end up in a state where no user input is received until a double tab out of/into the game. The window is brought to front in order to avoid this.
                 BringProcessWindowToFront(process);
