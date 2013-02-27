@@ -87,28 +87,30 @@ Section "Dota 2 Translator"
 	createShortCut "$SMPROGRAMS\Dota 2 Translator\Uninstall.lnk" "$INSTDIR\uninstall.exe" "" ""
 SectionEnd
 
-Section ".Net Framework 4.0 Client Profile"
+Section "Dependencies"
 	; Install .Net Framework 4.0 Client Profile.
 	File "Dependencies\dotNetFx40_Client_setup.exe"
-	ExecWait "$INSTDIR\dotNetFx40_Client_setup.exe /passive /showrmui /promptrestart"
-SectionEnd
-
-Section "WinPcap"
+	ExecWait "$INSTDIR\dotNetFx40_Client_setup.exe /passive /showrmui /norestart" $2
+	${If} $2 == 3010
+	${OrIf} $2 == 1641
+		SetRebootFlag true
+	${EndIf}
+	
 	; Install WinPcap.
 	File "Dependencies\WinPcap_4_1_2.exe"
 	ExecWait "$INSTDIR\WinPcap_4_1_2.exe /S"
-SectionEnd
-
-Section "SlimDX"
+	
 	; Install SlimDX.
 	File "Dependencies\SlimDX Runtime .NET 4.0 x86 (January 2012).msi"
 	ExecWait "msiexec /package $\"SlimDX Runtime .NET 4.0 x86 (January 2012).msi$\" /passive"
-SectionEnd
 
-Section "C++ Redist 2010"
 	; Install Microsoft Visual C++ 2010 Redistributable. 
 	File "Dependencies\vcredist_x86.exe"
-	ExecWait "vcredist_x86.exe /passive"
+	ExecWait "vcredist_x86.exe /passive /norestart" $3
+	${If} $3 == 3010
+		SetRebootFlag true
+	${EndIf}
+	
 SectionEnd
 
 Section "Uninstall"
