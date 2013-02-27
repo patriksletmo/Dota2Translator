@@ -97,6 +97,15 @@ namespace Dota2ChatInterface
                 // Try to receive adapter data from WinPcap.
                 data = GetDeviceList();
             }
+            catch (System.IO.FileNotFoundException)
+            {
+                // Microsoft Visual C++ 2010 Redistributable is not installed, inform the user.
+                MessageBox.Show("It appears that Microsoft Visual C++ 2010 Redistributable is not installed, please run the installer found in the installation directory and then re-run this program.", "Could not detect any device");
+
+                // Close the window.
+                Dispatcher.Invoke(Delegate.CreateDelegate(typeof(VoidDelegate), this, typeof(AdapterChooser).GetMethod("CloseWindow")), new object[] { });
+                return;
+            }
             catch (DllNotFoundException)
             {
                 // WinPcap is not installed, inform the user.
