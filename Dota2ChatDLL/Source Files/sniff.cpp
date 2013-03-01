@@ -158,7 +158,7 @@ void _StartDevice(pcap_if_t* d, Dota_ChatMessage_Callback callback)
 	char errbuf[PCAP_ERRBUF_SIZE];
 
 	// Open the device for listening.
-	pcap_t *fp = pcap_open(d->name, 100, PCAP_OPENFLAG_PROMISCUOUS, 20, NULL, errbuf);
+	pcap_t *fp = pcap_open(d->name, 100, 0, 20, NULL, errbuf);
 
 	int res;
 	struct pcap_pkthdr *header;
