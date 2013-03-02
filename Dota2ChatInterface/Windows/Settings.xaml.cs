@@ -199,7 +199,6 @@ namespace Dota2ChatInterface
     public class SettingsHandler
     {
         // Constants for storing of the settings.
-        private const String AppDataFolder = "Dota 2 Translator";
         private const String FileName = "Settings.cfg";
 
         // Default values.
@@ -229,7 +228,7 @@ namespace Dota2ChatInterface
         private FileStream GetFileStream(FileMode mode)
         {
             // Construct a path leading to AppData/Roaming/[AppDataFolder].
-            String path = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), AppDataFolder);
+            String path = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), App.AppDataFolder);
             
             // Make sure it exists.
             Directory.CreateDirectory(path);
