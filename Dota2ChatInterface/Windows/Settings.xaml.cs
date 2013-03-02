@@ -290,7 +290,7 @@ namespace Dota2ChatInterface
             try
             {
                 // Open the settings file for writing.
-                writer = new BinaryWriter(GetFileStream(FileMode.OpenOrCreate));
+                writer = new BinaryWriter(GetFileStream(FileMode.Create));
 
                 // Write string values.
                 writer.Write(ExeName);
