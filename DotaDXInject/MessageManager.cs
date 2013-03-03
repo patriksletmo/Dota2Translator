@@ -28,12 +28,15 @@ using System.Threading.Tasks;
 
 namespace DotaDXInject
 {
-    public delegate void DebugMessage(Int32 clientPID, string message);
+    public delegate void DebugMessage(String message);
 
     public static class MessageManager
     {
         // The pending event queue.
         static List<object[]> PendingEvents = new List<object[]>();
+
+        // Event called when a debug message is being sent.
+        public static event DebugMessage OnDebugMessage;
         
         // Adds a pending event to the queue.
         public static void AddPendingEvent(int type, object[] args)
@@ -67,6 +70,13 @@ namespace DotaDXInject
 
                 return pendingEvent;
             }
+        }
+
+        // Sends a debug message to the main program.
+        public static void AddDebugMessage(String message)
+        {
+            if (OnDebugMessage != null)
+                OnDebugMessage(message);
         }
 
     }

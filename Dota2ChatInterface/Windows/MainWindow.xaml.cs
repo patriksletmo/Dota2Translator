@@ -210,6 +210,9 @@ namespace Dota2ChatInterface
         // Injects the overlay.
         public void StartOverlay()
         {
+            // Register debug message handler.
+            DotaDXInject.MessageManager.OnDebugMessage += OnDebugMessage;
+
             // Setup the helper.
             InjectionHelper.Setup();
 
@@ -218,6 +221,12 @@ namespace Dota2ChatInterface
 
             // Set the state of the inject button to disabled if the injection succeeded.
             SetInjectOverlayButtonState_Invoke(!success);
+        }
+
+        // Prints out an incoming debug message from the overlay drawer.
+        private void OnDebugMessage(String message)
+        {
+            Console.WriteLine(message);
         }
 
         // Called by the C++ code when a message has been received or a status has changed.

@@ -36,6 +36,9 @@ namespace DotaDXInject
 {
     internal class DXHookD3D9
     {
+        // Reference to the ChatInterface instance used.
+        private ChatInterface Interface;
+
         // Whether or not to hide the overlay because auto hide triggered.
         public Boolean Hide = false;
 
@@ -99,6 +102,14 @@ namespace DotaDXInject
         // The amount of milliseconds the success message is shown.
         private double SuccessMessageTime = 3000;
 
+        // Debugging
+        private Boolean EndSceneCalled = false;
+
+        public DXHookD3D9(ChatInterface chatInterface)
+        {
+            this.Interface = chatInterface;
+        }
+
         #region Hooking
 
         private LocalHook Direct3DDevice_EndSceneHook = null;
@@ -122,36 +133,52 @@ namespace DotaDXInject
         // Hooks the DirectX functions we are interested in.
         public void Hook()
         {
-            // Register the time.
-            TimeAdded = DateTime.Now;
-
-            // Retrieve the function addresses.
-            Device device;
-            List<IntPtr> id3dDeviceFunctionAddresses = new List<IntPtr>();
-            using (Direct3D d3d = new Direct3D())
+            try
             {
-                using (device = new Device(d3d, 0, DeviceType.NullReference, IntPtr.Zero, CreateFlags.HardwareVertexProcessing, new PresentParameters() { BackBufferWidth = 1, BackBufferHeight = 1 }))
+                Interface.Debug("Hooking DirectX functions...");
+
+                // Register the time.
+                TimeAdded = DateTime.Now;
+
+                // Retrieve the function addresses.
+                Device device;
+                List<IntPtr> id3dDeviceFunctionAddresses = new List<IntPtr>();
+                using (Direct3D d3d = new Direct3D())
                 {
-                    id3dDeviceFunctionAddresses.AddRange(GetVTblAddresses(device.ComPointer, D3D9_DEVICE_METHOD_COUNT));
+                    using (device = new Device(d3d, 0, DeviceType.NullReference, IntPtr.Zero, CreateFlags.HardwareVertexProcessing, new PresentParameters() { BackBufferWidth = 1, BackBufferHeight = 1 }))
+                    {
+                        id3dDeviceFunctionAddresses.AddRange(GetVTblAddresses(device.ComPointer, D3D9_DEVICE_METHOD_COUNT));
+                    }
                 }
+
+                Interface.Debug("Hooking EndScene at " + id3dDeviceFunctionAddresses[(int)Direct3DDevice9FunctionOrdinals.EndScene]);
+
+                // Hook EndScene.
+                Direct3DDevice_EndSceneHook = LocalHook.Create(
+                    id3dDeviceFunctionAddresses[(int)Direct3DDevice9FunctionOrdinals.EndScene],
+                    new Direct3D9Device_EndSceneDelegate(EndSceneHook),
+                    this
+                    );
+
+                Interface.Debug("Hooking Reset at " + id3dDeviceFunctionAddresses[(int)Direct3DDevice9FunctionOrdinals.Reset]);
+
+                // Hook Reset.
+                Direct3DDevice_ResetHook = LocalHook.Create(
+                    id3dDeviceFunctionAddresses[(int)Direct3DDevice9FunctionOrdinals.Reset],
+                    new Direct3D9Device_ResetDelegate(ResetHook),
+                    this);
+
+                // Activate the hooks.
+                Direct3DDevice_EndSceneHook.ThreadACL.SetExclusiveACL(new Int32[1]);
+                Direct3DDevice_ResetHook.ThreadACL.SetExclusiveACL(new Int32[1]);
+
+                Interface.Debug("All DirectX functions hooked!\n");
             }
-
-            // Hook EndScene.
-            Direct3DDevice_EndSceneHook = LocalHook.Create(
-                id3dDeviceFunctionAddresses[(int)Direct3DDevice9FunctionOrdinals.EndScene],
-                new Direct3D9Device_EndSceneDelegate(EndSceneHook),
-                this
-                );
-
-            // Hook Reset.
-            Direct3DDevice_ResetHook = LocalHook.Create(
-                id3dDeviceFunctionAddresses[(int)Direct3DDevice9FunctionOrdinals.Reset],
-                new Direct3D9Device_ResetDelegate(ResetHook),
-                this);
-
-            // Activate the hooks.
-            Direct3DDevice_EndSceneHook.ThreadACL.SetExclusiveACL(new Int32[1]);
-            Direct3DDevice_ResetHook.ThreadACL.SetExclusiveACL(new Int32[1]);
+            catch (Exception e)
+            {
+                Interface.Debug("Hooking failed!\nAdditional info: " + e.ToString());
+                throw e;
+            }
         }
 
         // Cleans up after us.
@@ -235,6 +262,13 @@ namespace DotaDXInject
         // Called every frame from the DirectX API. We draw our overlay here (on top of everything).
         int EndSceneHook(IntPtr devicePtr)
         {
+            // Used to debug whether or not the EndScene is called.
+            if (!EndSceneCalled)
+            {
+                EndSceneCalled = true;
+                Interface.Debug("EndScene called successfully!");
+            }
+
             using (Device device = Device.FromPointer(devicePtr))
             {
                 // Retrieve the current time.

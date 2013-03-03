@@ -51,7 +51,7 @@ namespace DotaDXInject
             try
             {
                 // Hook the DirectX API.
-                directXHook = new DXHookD3D9();
+                directXHook = new DXHookD3D9(chatInterface);
                 directXHook.Hook();
             }
             catch (Exception)

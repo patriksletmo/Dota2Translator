@@ -40,5 +40,10 @@ namespace DotaDXInject
         {
             return MessageManager.GetPendingEvent();
         }
+
+        public void Debug(String message)
+        {
+            MessageManager.AddDebugMessage(message);
+        }
     }
 }
