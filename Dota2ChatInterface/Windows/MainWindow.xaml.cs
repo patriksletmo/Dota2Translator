@@ -38,6 +38,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Net.NetworkInformation;
 using System.Management;
+using System.Windows.Interop;
 
 namespace Dota2ChatInterface
 {
@@ -81,6 +82,9 @@ namespace Dota2ChatInterface
         // Packet capture thread. Will be killed when closing the window.
         private Thread PacketCaptureThread;
 
+        // Reference to the window handle.
+        private IntPtr hWnd;
+
         // Constructor.
         public MainWindow(IntPtr devicePointer)
         {
@@ -104,6 +108,9 @@ namespace Dota2ChatInterface
         // Called when the window has been loaded.
         private void Window_Loaded(object sender, EventArgs args)
         {
+            // Get the window handle.
+            hWnd = new WindowInteropHelper(Window.GetWindow(this)).Handle;
+
             // Register click listeners.
             SettingsButton.Click += SettingsButton_Click;
             InjectButton.Click += InjectButton_Click;
@@ -217,7 +224,7 @@ namespace Dota2ChatInterface
             InjectionHelper.Setup();
 
             // Attach the overlay to the dota process.
-            Boolean success = InjectionHelper.AttachToProcess();
+            Boolean success = InjectionHelper.AttachToProcess(hWnd);
 
             // Set the state of the inject button to disabled if the injection succeeded.
             SetInjectOverlayButtonState_Invoke(!success);

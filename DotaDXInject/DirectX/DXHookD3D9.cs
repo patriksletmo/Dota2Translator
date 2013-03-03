@@ -131,7 +131,7 @@ namespace DotaDXInject
         }
 
         // Hooks the DirectX functions we are interested in.
-        public void Hook()
+        public void Hook(IntPtr hWnd)
         {
             try
             {
@@ -145,7 +145,7 @@ namespace DotaDXInject
                 List<IntPtr> id3dDeviceFunctionAddresses = new List<IntPtr>();
                 using (Direct3D d3d = new Direct3D())
                 {
-                    using (device = new Device(d3d, 0, DeviceType.NullReference, IntPtr.Zero, CreateFlags.HardwareVertexProcessing, new PresentParameters() { BackBufferWidth = 1, BackBufferHeight = 1 }))
+                    using (device = new Device(d3d, 0, DeviceType.NullReference, hWnd, CreateFlags.HardwareVertexProcessing, new PresentParameters() { EnableAutoDepthStencil = false, BackBufferWidth = 1, BackBufferHeight = 1, DeviceWindowHandle = hWnd }))
                     {
                         id3dDeviceFunctionAddresses.AddRange(GetVTblAddresses(device.ComPointer, D3D9_DEVICE_METHOD_COUNT));
                     }

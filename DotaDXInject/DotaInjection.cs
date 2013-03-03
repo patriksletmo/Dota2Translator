@@ -39,20 +39,20 @@ namespace DotaDXInject
         // The interface for communicating with the program.
         private ChatInterface chatInterface = null;
 
-        public DotaInjection(RemoteHooking.IContext context, String channelName)
+        public DotaInjection(RemoteHooking.IContext context, String channelName, IntPtr hWnd)
         {
             // Connect to the program.
             chatInterface = RemoteHooking.IpcConnectClient<ChatInterface>(channelName);
         }
 
         // Called by the EasyHook API. This method will keep running untill the connection to the program is stopped.
-        public void Run(RemoteHooking.IContext context, String channelName)
+        public void Run(RemoteHooking.IContext context, String channelName, IntPtr hWnd)
         {
             try
             {
                 // Hook the DirectX API.
                 directXHook = new DXHookD3D9(chatInterface);
-                directXHook.Hook();
+                directXHook.Hook(hWnd);
             }
             catch (Exception)
             {

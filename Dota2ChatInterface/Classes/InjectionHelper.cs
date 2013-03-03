@@ -51,7 +51,7 @@ namespace Dota2ChatInterface
         }
 
         // Attaches the DLL to the game.
-        public static Boolean AttachToProcess()
+        public static Boolean AttachToProcess(IntPtr hWnd)
         {
             // Load stored settings.
             SettingsHandler settings = SettingsHandler.GetInstance();
@@ -81,7 +81,8 @@ namespace Dota2ChatInterface
                         typeof(DotaInjection).Assembly.Location,        // 32-bit DLL
                         typeof(DotaInjection).Assembly.Location,        // 64-bit DLL - Will never be used
                         // Optional parameters.
-                        ChannelName                                     // The name of the IPC channel for the injected assembly to connect to
+                        ChannelName,                                     // The name of the IPC channel for the injected assembly to connect to
+                        hWnd                                             // A reference to the window handler. Used to create a DirectX device.
                     );
                 }
                 catch (System.IO.FileNotFoundException)
