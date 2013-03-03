@@ -114,23 +114,8 @@ Section "Dependencies"
 SectionEnd
 
 Section "Uninstall"
-	; Delete the license files.
-	!insertmacro RemoveFilesAndSubDirs "$INSTDIR\Licenses"
-	rmDir "$INSTDIR\Licenses"
-
-	; Delete dependency installers.
-	Delete "$INSTDIR\dotNetFx40_Client_setup.exe"
-	Delete "$INSTDIR\WinPcap_4_1_2.exe"
-	Delete "$INSTDIR\SlimDX Runtime .NET 4.0 x86 (January 2012).msi"
-	Delete "$INSTDIR\vcredist_x86.exe"
-
-	; Delete exe's and dll's.
-	Delete "$INSTDIR\Dota2ChatInterface.exe"
-	Delete "$INSTDIR\Dota2ChatDLL.dll"
-	Delete "$INSTDIR\DotaDXInject.dll"
-	Delete "$INSTDIR\EasyHook.dll"
-	Delete "$INSTDIR\EasyHook32.dll"
-	Delete "$INSTDIR\Newtonsoft.Json.dll"
+	; Clear the installation directory (does not delete the uninstaller).
+	!insertmacro RemoveFilesAndSubDirs "$INSTDIR"
 	
 	; Delete the start menu entry.
 	Delete "$SMPROGRAMS\Dota 2 Translator\Dota 2 Translator.lnk"

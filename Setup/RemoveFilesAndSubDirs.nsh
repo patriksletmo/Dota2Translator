@@ -38,6 +38,7 @@ ${Index_RemoveFilesAndSubDirs}-loop:
   StrCmp $R1 "" ${Index_RemoveFilesAndSubDirs}-done
   StrCmp $R1 "." ${Index_RemoveFilesAndSubDirs}-next
   StrCmp $R1 ".." ${Index_RemoveFilesAndSubDirs}-next
+  StrCmp $R1 "uninstall.exe" ${Index_RemoveFilesAndSubDirs}-next
   IfFileExists "$R2$R1\*.*" ${Index_RemoveFilesAndSubDirs}-directory
   ; file
   Delete "$R2$R1"
