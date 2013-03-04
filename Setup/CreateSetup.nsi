@@ -57,6 +57,7 @@ Section "Dota 2 Translator"
 	File ${OUT}\EasyHook.dll
 	File ${OUT}\EasyHook32.dll
 	File ${OUT}\Newtonsoft.Json.dll
+	File ${OUT}\Updater.exe
 	
 	; Add license files.
 	createDirectory "$INSTDIR\Licenses"

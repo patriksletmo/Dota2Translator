@@ -182,6 +182,10 @@
       <Project>{c7f2cd55-ab19-4ad2-a9b6-26cffda6f391}</Project>
       <Name>DotaDXInject</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Updater\Updater.csproj">
+      <Project>{8e43c544-e18f-4eac-ae69-c0c0a8295fce}</Project>
+      <Name>Updater</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Resource Include="dota.ico" />

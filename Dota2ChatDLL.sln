@@ -4,8 +4,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Dota2ChatDLL", "Dota2ChatDLL\Dota2ChatDLL.vcxproj", "{F50E82E7-9CE9-472D-8437-371B6018A1DC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dota2ChatInterface", "Dota2ChatInterface\Dota2ChatInterface.csproj", "{0A2EBFC6-C977-4136-A16D-C6F8D123FE23}"
+	ProjectSection(ProjectDependencies) = postProject
+		{8E43C544-E18F-4EAC-AE69-C0C0A8295FCE} = {8E43C544-E18F-4EAC-AE69-C0C0A8295FCE}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotaDXInject", "DotaDXInject\DotaDXInject.csproj", "{C7F2CD55-AB19-4AD2-A9B6-26CFFDA6F391}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Updater", "Updater\Updater.csproj", "{8E43C544-E18F-4EAC-AE69-C0C0A8295FCE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -61,6 +66,19 @@ Global
 		{C7F2CD55-AB19-4AD2-A9B6-26CFFDA6F391}.Release|Win32.Build.0 = Release|x86
 		{C7F2CD55-AB19-4AD2-A9B6-26CFFDA6F391}.Release|x86.ActiveCfg = Release|x86
 		{C7F2CD55-AB19-4AD2-A9B6-26CFFDA6F391}.Release|x86.Build.0 = Release|x86
+		{8E43C544-E18F-4EAC-AE69-C0C0A8295FCE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8E43C544-E18F-4EAC-AE69-C0C0A8295FCE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8E43C544-E18F-4EAC-AE69-C0C0A8295FCE}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{8E43C544-E18F-4EAC-AE69-C0C0A8295FCE}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{8E43C544-E18F-4EAC-AE69-C0C0A8295FCE}.Debug|Win32.ActiveCfg = Debug|Any CPU
+		{8E43C544-E18F-4EAC-AE69-C0C0A8295FCE}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{8E43C544-E18F-4EAC-AE69-C0C0A8295FCE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8E43C544-E18F-4EAC-AE69-C0C0A8295FCE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8E43C544-E18F-4EAC-AE69-C0C0A8295FCE}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{8E43C544-E18F-4EAC-AE69-C0C0A8295FCE}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{8E43C544-E18F-4EAC-AE69-C0C0A8295FCE}.Release|Win32.ActiveCfg = Release|Any CPU
+		{8E43C544-E18F-4EAC-AE69-C0C0A8295FCE}.Release|x86.ActiveCfg = Release|x86
+		{8E43C544-E18F-4EAC-AE69-C0C0A8295FCE}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
