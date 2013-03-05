@@ -4,6 +4,7 @@
 ; Used to remove all the files in a directory.
 !include "RemoveFilesAndSubDirs.nsh"
 
+; Used to check if Dota 2 is running.
 !include "nsProcess.nsh"
 
 ; Define name and output file.
@@ -69,7 +70,7 @@ Section "Dota 2 Translator"
 	createDirectory "$INSTDIR\Licenses\EasyHook"
 	SetOutPath "$INSTDIR\Licenses\EasyHook"
 	File ${LICENSES}\EasyHook\LICENSE.txt
-		createDirectory "$INSTDIR\Licenses\SlimDX"
+	createDirectory "$INSTDIR\Licenses\SlimDX"
 	SetOutPath "$INSTDIR\Licenses\SlimDX"
 	File ${LICENSES}\SlimDX\LICENSE.txt
 	createDirectory "$INSTDIR\Licenses\WinPcap"
@@ -114,7 +115,6 @@ Section "Dependencies"
 	${If} $3 == 3010
 		SetRebootFlag true
 	${EndIf}
-	
 SectionEnd
 
 Section "Uninstall"
