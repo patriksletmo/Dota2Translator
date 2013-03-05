@@ -75,6 +75,9 @@ Section "Dota 2 Translator"
 	createDirectory "$INSTDIR\Licenses\WinPcap"
 	SetOutPath "$INSTDIR\Licenses\WinPcap"
 	File ${LICENSES}\WinPcap\LICENSE.txt
+	createDirectory "$INSTDIR\Licenses\Json.NET"
+	SetOutPath "$INSTDIR\Licenses\Json.NET"
+	File ${LICENSES}\Json.NET\LICENSE.txt
 	
 	; Reset out path.
 	SetOutPath "$INSTDIR"
