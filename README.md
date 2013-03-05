@@ -1,7 +1,6 @@
-
 ------- DOTA 2 TRANSLATOR -------
 
-- INTRODUCTION -
+--- INTRODUCTION ---
 Dota 2 Translator is a free add-on program used to translate the chat in the game.
 
 The program filters packet data from WinPcap and strips out incoming chat messages. The
@@ -10,7 +9,7 @@ displayed in the program itself or in the game using hooked DirectX 9 functions.
 overlay is scaled to match the current display resolution and can be fine-tuned from the
 settings panel included within the program.
 
-- BUILDING -
+--- BUILDING ---
 In order to build Dota 2 you must first download Visual Studio 2010 (express version 
 will work as well) or later and install the SlimDX SDK (which can be downloaded from 
 http://slimdx.org/download.php).
@@ -19,7 +18,8 @@ When these dependencies have been installed you can open up the solution. There 
 solution file called Dota2ChatDLL.sln which contains all the projects, open it with
 Visual Studio.
 
-There will be some changes that needs to be done before you can build the project.
+There will be some changes that needs to be done before you can build the project:
+
 1. Make sure that Dota2ChatInterface is the startup project, you can edit this by
 right-clicking the project and selecting "Set as Startup Project".
 2. If you downloaded the 2012 version of Visual Studio you have to change the platform
@@ -32,7 +32,7 @@ the 2010 version.
 configured for building in any other mode and will most likely not succeed.
 4. Build the project!
 
-- CREATING A SETUP -
+--- CREATING A SETUP ---
 1. Download an install NSIS from http://nsis.sourceforge.net. This program is used to build
 the setup file from the setup script included. 
 2. Open the script ./Setup/CreateSetup.nsi with NSIS. If you opened it by right-clicking
