@@ -60,6 +60,10 @@ namespace Dota2ChatInterface
             // Register easter egg (spoiler?)
             FONT_NAME.TextChanged += FontName_TextChanged;
 
+            // Register event for AutoMessageHeight change.
+            AUTO_MESSAGE_HEIGHT.Checked += AUTO_MESSAGE_HEIGHT_Checked;
+            AUTO_MESSAGE_HEIGHT.Unchecked += AUTO_MESSAGE_HEIGHT_Checked;
+
             // Load settings.
             LoadedSettings = SettingsHandler.CloneInstance();
 
@@ -74,6 +78,8 @@ namespace Dota2ChatInterface
             FADE_MESSAGES.IsChecked = LoadedSettings.FadeMessages;
             FADE_WAIT.Text = LoadedSettings.FadeWait.ToString();
             FADE_DURATION.Text = LoadedSettings.FadeDuration.ToString();
+            AUTO_MESSAGE_HEIGHT.IsChecked = LoadedSettings.AutoMessageHeight;
+            MESSAGE_HEIGHT.Text = LoadedSettings.MessageHeight.ToString();
         }
 
         // Called when SaveButton is clicked.
@@ -115,6 +121,13 @@ namespace Dota2ChatInterface
             DefaultFontButton.Visibility = comicSans ? Visibility.Hidden : Visibility.Visible;
         }
 
+        // Called when the AutoMessageHeight property is changed.
+        private void AUTO_MESSAGE_HEIGHT_Checked(object sender, EventArgs args)
+        {
+            // Disable the MessageHeight textfield if enabled.
+            MESSAGE_HEIGHT.IsEnabled = !AUTO_MESSAGE_HEIGHT.IsChecked.Value;
+        }
+
         // Stores values in the SettingsHandler instance.
         private Boolean StoreTemporarily()
         {
@@ -128,6 +141,7 @@ namespace Dota2ChatInterface
             LoadedSettings.AddOnStartup = ADD_ON_STARTUP.IsChecked.Value;
             LoadedSettings.OutputAll = OUTPUT_ALL.IsChecked.Value;
             LoadedSettings.FadeMessages = FADE_MESSAGES.IsChecked.Value;
+            LoadedSettings.AutoMessageHeight = AUTO_MESSAGE_HEIGHT.IsChecked.Value;
 
             try
             {
@@ -192,6 +206,19 @@ namespace Dota2ChatInterface
                 MessageBox.Show("The field 'Fade duration' does not contain a valid number.", "A setting failed to save");
             }
 
+            try
+            {
+                LoadedSettings.MessageHeight = Int16.Parse(MESSAGE_HEIGHT.Text.Trim());
+            }
+            catch
+            {
+                // Number parsing failed.
+                parsingError = true;
+
+                // Alert the user.
+                MessageBox.Show("The field 'Message height' does not contain a valid integer.", "A setting failed to save");
+            }
+
             return parsingError;
         }
     }
@@ -212,6 +239,8 @@ namespace Dota2ChatInterface
         public Boolean FadeMessages = true;
         public double FadeWait = 20.0;
         public double FadeDuration = 2.5;
+        public Boolean AutoMessageHeight = true;
+        public Int16 MessageHeight = 12;
         
         // Indicates whether the instance can be saved or not. Only the original instance can be saved.
         private Boolean CanSave = true;
@@ -265,6 +294,8 @@ namespace Dota2ChatInterface
                 FadeMessages = reader.ReadBoolean();
                 FadeWait = reader.ReadDouble();
                 FadeDuration = reader.ReadDouble();
+                AutoMessageHeight = reader.ReadBoolean();
+                MessageHeight = reader.ReadInt16();
             }
             catch (Exception)
             {
@@ -309,6 +340,8 @@ namespace Dota2ChatInterface
                 writer.Write(FadeMessages);
                 writer.Write(FadeWait);
                 writer.Write(FadeDuration);
+                writer.Write(AutoMessageHeight);
+                writer.Write(MessageHeight);
             }
             catch (Exception)
             {
@@ -335,6 +368,8 @@ namespace Dota2ChatInterface
             this.FadeMessages = settingsHandler.FadeMessages;
             this.FadeWait = settingsHandler.FadeWait;
             this.FadeDuration = settingsHandler.FadeDuration;
+            this.AutoMessageHeight = settingsHandler.AutoMessageHeight;
+            this.MessageHeight = settingsHandler.MessageHeight;
         }
 
         // Returns a copy of the static instance. This copy can not save itself to disk.
@@ -353,6 +388,8 @@ namespace Dota2ChatInterface
             handler.FadeMessages = this.FadeMessages;
             handler.FadeWait = this.FadeWait;
             handler.FadeDuration = this.FadeDuration;
+            handler.AutoMessageHeight = this.AutoMessageHeight;
+            handler.MessageHeight = this.MessageHeight;
 
             return handler;
         }
@@ -366,6 +403,8 @@ namespace Dota2ChatInterface
             InjectionHelper.SendSetting("FadeMessages", this.FadeMessages);
             InjectionHelper.SendSetting("FadeWait", this.FadeWait);
             InjectionHelper.SendSetting("FadeDuration", this.FadeDuration);
+            InjectionHelper.SendSetting("AutoMessageHeight", this.AutoMessageHeight);
+            InjectionHelper.SendSetting("MessageHeight", this.MessageHeight);
         }
 
         // Returns the static instance or creates one if none is available.

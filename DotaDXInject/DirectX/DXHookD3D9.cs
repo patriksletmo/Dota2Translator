@@ -54,6 +54,12 @@ namespace DotaDXInject
         // The last amount of messages shown, used to refresh the font.
         private int LastMessagesShown = 0;
 
+        // The last value of using an automatic message height, used to refresh the font.
+        private Boolean LastAutoMessageHeight = false;
+
+        // The last message height, used to refresh the font.
+        private Int16 LastMessageHeight = 0;
+
         // The last font height, used to refresh the font.
         private int FontHeight = 0;
 
@@ -71,6 +77,9 @@ namespace DotaDXInject
 
         // Y position for the overlay.
         private int TextStartHeight = 0;
+
+        // The bottom Y position of the overlay.
+        private int TextEndHeight = 0;
 
         // The color used to draw the text.
         private Color TextColor = Color.FromArgb(250, 234, 201);
@@ -95,6 +104,12 @@ namespace DotaDXInject
 
         // How long the messages will fade.
         public double FadeDuration = 2.5;
+
+        // Whether or not to use an automatic message height.
+        public Boolean AutoMessageHeight = true;
+
+        // The height of the message font in pixels. Used if AutoMessageHeight is false.
+        public Int16 MessageHeight = 12;
 
         // The time the overlay was added.
         private DateTime TimeAdded;
@@ -314,10 +329,12 @@ namespace DotaDXInject
                     if (!Hide || !AutoHide)
                     {
                         // Refresh the font if the settings has been changed or create a font if null.
-                        if (OverlayFont == null || !FontName.Equals(LastFontName) || LastMessagesShown != MessagesShown)
+                        if (OverlayFont == null || !FontName.Equals(LastFontName) || LastMessagesShown != MessagesShown || AutoMessageHeight != LastAutoMessageHeight || MessageHeight != LastMessageHeight)
                         {
                             LastFontName = FontName;
                             LastMessagesShown = MessagesShown;
+                            LastAutoMessageHeight = AutoMessageHeight;
+                            LastMessageHeight = MessageHeight;
                             LoadFont(device);
                         }
 
@@ -365,18 +382,21 @@ namespace DotaDXInject
                             // Draw the wrapped message from the bottom.
                             for (int j = message.WrappedMessage.Length - 1; j >= 0 && y >= 0; j--)
                             {
-                                if (drawShadow)
-                                    OverlayFont.DrawString(null, message.WrappedMessage[j], TextStartWidth + FontHeight / 2 + message.SenderWidth, TextStartHeight + 1 + FontHeight * y, TextShadowColor);
+                                // Calculate the y position for the string.
+                                int stringY = TextStartHeight + (TextEndHeight - TextStartHeight) / MessagesShown * y; 
 
-                                OverlayFont.DrawString(null, message.WrappedMessage[j], TextStartWidth - 1 + FontHeight / 2 + message.SenderWidth, TextStartHeight + FontHeight * y, drawColor);
+                                if (drawShadow)
+                                    OverlayFont.DrawString(null, message.WrappedMessage[j], TextStartWidth + FontHeight / 2 + message.SenderWidth, stringY + 1, TextShadowColor);
+
+                                OverlayFont.DrawString(null, message.WrappedMessage[j], TextStartWidth - 1 + FontHeight / 2 + message.SenderWidth, stringY, drawColor);
 
                                 // Only draw the sender on the upmost line.
                                 if (j == 0)
                                 {
                                     if (drawShadow)
-                                        OverlayFont.DrawString(null, message.Sender + ": ", TextStartWidth, TextStartHeight + 1 + FontHeight * y, TextShadowColor);
+                                        OverlayFont.DrawString(null, message.Sender + ": ", TextStartWidth, stringY + 1, TextShadowColor);
 
-                                    OverlayFont.DrawString(null, message.Sender + ": ", TextStartWidth - 1, TextStartHeight + FontHeight * y, drawColor);
+                                    OverlayFont.DrawString(null, message.Sender + ": ", TextStartWidth - 1, stringY, drawColor);
                                 }
                                 y--;
                             }
@@ -400,7 +420,14 @@ namespace DotaDXInject
         private void LoadFont(Device device)
         {
             // Calculate the height of the font.
-            float fontHeight = 12.0f * 6 / MessagesShown / 1080f * PreviousHeight;
+            float fontHeight;
+
+            if (AutoMessageHeight)
+                // Scale the font if in automatic mode.
+                fontHeight = 12.0f * 6 / MessagesShown / 1080f * PreviousHeight;
+            else
+                // Use the set height if automatic mode is off.
+                fontHeight = MessageHeight;
 
             // Used to space the lines.
             FontHeight = (int) (fontHeight * 1.6);
@@ -430,6 +457,7 @@ namespace DotaDXInject
             // *Everything* in the Dota 2 interface is sized by percentage, woho!
             AvailableTextWidth = (int)(515f / 1920f * width);
             TextStartHeight = (int)(640f / 1080f * height);
+            TextEndHeight = (int)(808f / 1080f * height);
             TextStartWidth = (int)(29f / 1920f * width);
         }
 

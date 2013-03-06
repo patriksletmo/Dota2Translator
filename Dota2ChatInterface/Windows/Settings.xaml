@@ -7,7 +7,7 @@
             <RowDefinition Height="35"/>
             <RowDefinition Height="90"/>
             <RowDefinition Height="35"/>
-            <RowDefinition Height="131"/>
+            <RowDefinition Height="157"/>
             <RowDefinition Height="35"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
@@ -41,14 +41,17 @@
         <TextBox x:Name="MESSAGES_SHOWN" HorizontalAlignment="Left" Height="23" Margin="117,43,0,0" Grid.Row="3" TextWrapping="Wrap" Text="6" VerticalAlignment="Top" Width="110"/>
         <Label Content="Messages shown" HorizontalAlignment="Left" Margin="11,41,0,0" Grid.Row="3" VerticalAlignment="Top" Height="26" Width="101" Padding="5,5,0,5"/>
         <Label Content="(Will determine font size)" HorizontalAlignment="Left" Margin="232,41,0,0" Grid.Row="3" VerticalAlignment="Top" Foreground="#FFC5C5C5" Height="26"/>
-        <CheckBox x:Name="FADE_MESSAGES" Content="Fade messages" HorizontalAlignment="Left" Margin="15,72,0,0" Grid.Row="3" VerticalAlignment="Top" IsChecked="True"/>
-        <Label Content="Fade delay" HorizontalAlignment="Left" Margin="15,93,0,0" Grid.Row="3" VerticalAlignment="Top"/>
-        <TextBox x:Name="FADE_WAIT" HorizontalAlignment="Left" Height="23" Margin="87,95,0,0" Grid.Row="3" TextWrapping="Wrap" Text="20" VerticalAlignment="Top" Width="39"/>
-        <Label Content="Fade duration" HorizontalAlignment="Left" Margin="141,93,0,0" Grid.Row="3" VerticalAlignment="Top"/>
-        <TextBox x:Name="FADE_DURATION" HorizontalAlignment="Left" Height="23" Margin="231,95,0,0" Grid.Row="3" TextWrapping="Wrap" Text="2,5" VerticalAlignment="Top" Width="39"/>
-        <Label Content="(Seconds)" HorizontalAlignment="Left" Margin="275,93,0,0" Grid.Row="3" VerticalAlignment="Top" Foreground="#FFC5C5C5" Height="26"/>
+        <CheckBox x:Name="FADE_MESSAGES" Content="Fade messages" HorizontalAlignment="Left" Margin="15,103,0,0" Grid.Row="3" VerticalAlignment="Top" IsChecked="True"/>
+        <Label Content="Fade delay" HorizontalAlignment="Left" Margin="10,123,0,0" Grid.Row="3" VerticalAlignment="Top"/>
+        <TextBox x:Name="FADE_WAIT" HorizontalAlignment="Left" Height="23" Margin="87,126,0,0" Grid.Row="3" TextWrapping="Wrap" Text="20" VerticalAlignment="Top" Width="39"/>
+        <Label Content="Fade duration" HorizontalAlignment="Left" Margin="141,123,0,0" Grid.Row="3" VerticalAlignment="Top"/>
+        <TextBox x:Name="FADE_DURATION" HorizontalAlignment="Left" Height="23" Margin="231,126,0,0" Grid.Row="3" TextWrapping="Wrap" Text="2,5" VerticalAlignment="Top" Width="39"/>
+        <Label Content="(Seconds)" HorizontalAlignment="Left" Margin="275,123,0,0" Grid.Row="3" VerticalAlignment="Top" Foreground="#FFC5C5C5" Height="26"/>
         <Button x:Name="CancelButton" Content="Cancel" HorizontalAlignment="Right" Margin="0,0,10,10" Grid.Row="5" VerticalAlignment="Bottom" Width="75" Height="28"/>
         <Button x:Name="SaveButton" Content="Save" HorizontalAlignment="Right" Margin="0,0,91,10" Grid.Row="5" VerticalAlignment="Bottom" Width="75" Height="28"/>
         <Button x:Name="DefaultFontButton" Content="Default" HorizontalAlignment="Left" Margin="236,12,0,0" Grid.Row="3" VerticalAlignment="Top" Width="75" Height="23"/>
+        <TextBox x:Name="MESSAGE_HEIGHT" HorizontalAlignment="Left" Height="23" Margin="116,74,0,0" Grid.Row="3" TextWrapping="Wrap" Text="12" VerticalAlignment="Top" Width="110" IsEnabled="False"/>
+        <Label Content="Message height" HorizontalAlignment="Left" Margin="10,72,0,0" Grid.Row="3" VerticalAlignment="Top" Height="26" Width="101" Padding="5,5,0,5"/>
+        <CheckBox x:Name="AUTO_MESSAGE_HEIGHT" Content="Auto" HorizontalAlignment="Left" Margin="236,77,0,0" Grid.Row="3" VerticalAlignment="Top" IsChecked="True"/>
     </Grid>
 </Window>
