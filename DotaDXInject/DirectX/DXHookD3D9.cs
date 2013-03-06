@@ -457,7 +457,7 @@ namespace DotaDXInject
             // *Everything* in the Dota 2 interface is sized by percentage, woho!
             AvailableTextWidth = (int)(515f / 1920f * width);
             TextStartHeight = (int)(640f / 1080f * height);
-            TextEndHeight = (int)(808f / 1080f * height);
+            TextEndHeight = (int)(775f / 1080f * height);
             TextStartWidth = (int)(29f / 1920f * width);
         }
 
