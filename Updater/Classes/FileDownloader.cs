@@ -43,31 +43,31 @@ namespace Updater
         }
 
         // Downloads the file to a temporary location.
-        public void Download()
+        public Boolean Download()
         {
             try
             {
-                // Send a request to the server.
-                WebRequest request = WebRequest.Create(App.UpdateUrl + "files/" + FileName);
-                request.Proxy = null; // Don't use a proxy.
-
-                // Get the response stream.
-                Stream stream = request.GetResponse().GetResponseStream();
-
-                // Create a temporary file.
+                // Construct the temporary file path.
                 TemporaryFile = Path.Combine(Path.GetTempPath(), "Dota 2 Translator/" + Guid.NewGuid().ToString());
                 Directory.CreateDirectory(Path.GetDirectoryName(TemporaryFile));
-                Stream outStream = new FileStream(TemporaryFile, FileMode.Create);
 
-                // Download the data to the newly created file.
-                stream.CopyTo(outStream);
+                // Download the file.
+                using (WebClient client = new WebClient())
+                {
+                    client.Proxy = null; // Don't use a proxy.
+                    client.DownloadFile(App.UpdateUrl + "files/" + FileName, TemporaryFile);
+                }
 
                 // Mark the file as succeeded.
                 Downloaded = true;
+
+                return true;
             }
             catch
             {
             }
+
+            return false;
         }
 
         // Applies the update to the specified directory.

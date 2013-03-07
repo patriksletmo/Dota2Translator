@@ -75,7 +75,11 @@ namespace Updater
             foreach (FileDownloader file in files)
             {
                 // Download the file.
-                file.Download();
+                Boolean success = file.Download();
+                if (!success)
+                    // Indicate that the file failed to download.
+                    MessageBox.Show("The file " + file.FileName + " failed to download!\n\nMake sure that you have a valid internet connection and your antivirus is not blocking the file.", "An error occurred");
+
                 progress++;
 
                 // Update the progress.
@@ -92,7 +96,7 @@ namespace Updater
                 if (!success)
                 {
                     // Indicate that there has been an error.
-                    MessageBox.Show("Failed to update " + file.FileName + "! Please close any instance of Dota 2 and try again.", "An error occurred");
+                    MessageBox.Show("Failed to copy " + file.FileName + "!\n\nMake sure you're running as an administrator, close all running instances of Dota 2 and try again.", "An error occurred");
                 }
 
                 // Remove the temporary file.
