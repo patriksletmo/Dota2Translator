@@ -33,6 +33,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.IO;
+using System.Globalization;
 
 namespace Dota2ChatInterface
 {
@@ -158,7 +159,7 @@ namespace Dota2ChatInterface
 
             try
             {
-                double fadeWait = Double.Parse(FADE_WAIT.Text.Replace('.', ',').Trim());
+                double fadeWait = Double.Parse(FADE_WAIT.Text.Replace(',', '.').Trim(), CultureInfo.InvariantCulture);
                 if (fadeWait < 0)
                 {
                     // Don't allow values of zero or below.
@@ -183,7 +184,7 @@ namespace Dota2ChatInterface
 
             try
             {
-                double fadeDuration = Double.Parse(FADE_DURATION.Text.Replace('.', ',').Trim());
+                double fadeDuration = Double.Parse(FADE_DURATION.Text.Replace(',', '.').Trim(), CultureInfo.InvariantCulture);
                 if (fadeDuration < 0)
                 {
                     // Don't allow values of zero or below.
