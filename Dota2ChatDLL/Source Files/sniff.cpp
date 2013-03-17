@@ -173,6 +173,18 @@ void _StartDevice(pcap_if_t* d, Dota_ChatMessage_Callback callback)
 			continue;
 		}
 
+		// Determine ethernet packet type.
+		int packet_type = (pkt_data[12]*256) + pkt_data[13];
+
+		if (packet_type == 0x8864)
+		{
+			// We're receiving a PPPoE packet.
+
+			// Shift the packet data by 8 bytes.
+			pkt_data += 8;
+			header->len -= 8;
+		}
+
 		// Process the packet received.
 		HandleIPPacket((unsigned char*)(pkt_data + 14), (header->len) - 14, 1, callback);
 		
