@@ -56,6 +56,23 @@ namespace Updater
                 {
                     client.Proxy = null; // Don't use a proxy.
                     client.DownloadFile(App.UpdateUrl + "files/" + FileName, TemporaryFile);
+
+                    // Retrieve the last modified date of the remote file.
+                    String lastModified_string = client.ResponseHeaders.Get("Last-Modified");
+                    if (lastModified_string != null)
+                    {
+                        try
+                        {
+                            // Parse the date.
+                            DateTime lastModified = DateTime.Parse(lastModified_string);
+
+                            // Set the last modified property of the file to match the remote version.
+                            File.SetLastWriteTimeUtc(TemporaryFile, lastModified);
+                        }
+                        catch
+                        {
+                        }
+                    }
                 }
 
                 // Mark the file as succeeded.

@@ -35,13 +35,33 @@ namespace Updater
                 String name = item.GetAttribute("Name", "");
                 String md5 = item.GetAttribute("MD5", "");
 
+                // Retrieve the date of modification of the file.
+                String lastModified_string = item.GetAttribute("LastModified", "");
+
                 // Skip files with a missing value.
                 if (name == null || md5 == null)
                     continue;
 
+                Boolean isNewerBuild = false;
+                if (lastModified_string.Length != 0)
+                {
+                    // Retrieve the last modified date of the local file.
+                    DateTime lastWrite = File.GetLastWriteTimeUtc(Path.Combine(installationDirectory, name));
+
+                    // Parse the remote date.
+                    DateTime lastModified = DateTime.Parse(lastModified_string);
+
+                    // Check if the local file was created after than the remote file.
+                    if (lastWrite.CompareTo(lastModified) > 0)
+                    {
+                        // Don't update files that were built after the current server version.
+                        isNewerBuild = true;
+                    }
+                }
+
                 // Calculate the md5 checksum of the installed file.
                 String localMd5 = CalculateMD5(Path.Combine(installationDirectory, name));
-                if (localMd5 == null || !md5.Equals(localMd5))
+                if (!isNewerBuild && (localMd5 == null || !md5.Equals(localMd5)))
                 {
                     // The md5's does not match - The file needs an update.
                     filesNeedingUpdate.Add(name);
