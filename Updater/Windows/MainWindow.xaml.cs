@@ -189,7 +189,7 @@ namespace Updater
                            + "set count=0" + "\n"
                            + "for /f \"usebackq\" %%A in (`tasklist /fo list /fi \"imagename eq Updater.exe\"`) do set /a count+=1" + "\n"
                            + "if %count% GTR 1 (" + "\n"
-                           + "Sleep 1" + "\n"
+                           + "ping 127.0.0.1 -n 2 > nul" + "\n" // "Hack" used to wait 1 second (n - 1).
                            + "goto LOOP" + "\n"
                            + ")" + "\n\n"
                            + "MOVE /Y tmp_Updater.exe Updater.exe" + "\n\n"
