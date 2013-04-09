@@ -314,7 +314,64 @@ static void HandleUDPPacket(unsigned char *data, int length, int more, Dota_Chat
 
 			// Send the received message to the program.
 			callback(cm);
-		}		
+		}
+		else
+		{
+			// Search for DotaTV chat.
+			for (int i = 0; i < length - 8 - 6; i++)
+			{
+				// The structure for DotaTV is a bit more complicated than the normal chat,
+				// we have to search for multiple bytes at different locations.
+				// 
+				// Structure:
+				// 01 1a XX 08 01 12 [Sender length, 1 byte] [Sender] XX XX 08 01 12 [Message length, 1 byte] [Message]
+				// Numbers in hexadecimal represent constant bytes, text in brackets represents wanted data
+				// and XX represents (currently) unknown bytes.
+
+				int b0 = data2[i];
+				int b1 = data2[i + 1];
+				int b3 = data2[i + 3];
+				int b4 = data2[i + 4];
+				int b5 = data2[i + 5];
+
+				if (b0 == 0x01 &&
+					b1 == 0x1a &&
+					b3 == 0x08 &&
+					b4 == 0x01 &&
+					b5 == 0x12)
+				{
+					chat_found = i + 7;
+
+					int index_name = chat_found;
+					int length_name = data2[index_name - 1];
+
+					// Double check that this indeed is a DotaTV chat.
+					int b6 = data2[index_name + length_name + 2];
+					int b7 = data2[index_name + length_name + 3];
+					int b8 = data2[index_name + length_name + 4];
+
+					if (b6 == 0x08 &&
+						b7 == 0x01 &&
+						b8 == 0x12)
+					{
+						int index_message = index_name + length_name + 6;
+						int length_message = data2[index_message - 1];
+
+						wstring name = content.substr(index_name, length_name);
+						wstring message = content.substr(index_message, length_message);
+
+						// Put the data in a struct.
+						Dota_ChatMessage cm;
+						cm.Type = 2;
+						cm.Sender = name.c_str();
+						cm.Message = message.c_str();
+
+						// Send the received message to the program.
+						callback(cm);
+					}
+				}
+			}
+		}
 	}
 }
 

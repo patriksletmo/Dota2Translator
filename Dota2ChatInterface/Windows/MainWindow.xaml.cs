@@ -251,8 +251,9 @@ namespace Dota2ChatInterface
                 // A message has been received, display in main window and send to DLL.
                 case 0:
                 case 1:
+                case 2:
                     // Scope is determined by the type value: 0 = All, 1 = Team.
-                    String scope = (data.Type == 0) ? "ALL" : "TEAM";
+                    String scope = (data.Type == 0) ? "ALL" : ((data.Type == 1) ? "TEAM" : "TV");
 
                     // Make sure the data is read as UTF8.
                     String sender = ToUTF(data.Sender);
