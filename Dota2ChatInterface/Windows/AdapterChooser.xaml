@@ -10,6 +10,7 @@
             <Label x:Name="DefaultDescription" Content="" HorizontalAlignment="Left" Margin="47,120,0,0" VerticalAlignment="Top" Foreground="#FFA0A0A0" FontSize="18"/>
             <Button x:Name="DefaultButton" Content="Yes" HorizontalAlignment="Right" Margin="0,0,99,10" VerticalAlignment="Bottom" Width="75" Style="{DynamicResource DefBtn}" IsEnabled="False" />
             <Button x:Name="AdvancedButton" Content="No" HorizontalAlignment="Right" Margin="0,0,10,10" VerticalAlignment="Bottom" Width="75" Style="{DynamicResource DefBtn}" IsEnabled="False" />
+            <CheckBox x:Name="AlwaysUseMain" Content="Always use this adapter" HorizontalAlignment="Left" Margin="10,0,0,10" VerticalAlignment="Bottom" Foreground="White"/>
         </Grid>
         <Grid x:Name="AdvancedLayout" Visibility="Collapsed">
             <Label Content="Please select your network adapter" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Foreground="White" FontSize="34"/>
@@ -21,7 +22,12 @@
                 <local:NetworkAdapterItem />
             </ListBox>
             <Button x:Name="SelectButton" Content="Select" HorizontalAlignment="Right" Margin="0,0,10,10" VerticalAlignment="Bottom" Width="75" Style="{DynamicResource DefBtn}" />
-            <Label Content="No adapters found? Attempt to launch this application with administrator privileges." VerticalAlignment="Bottom" HorizontalAlignment="Center" Foreground="Gray" Margin="0,0,0,10" />
+            <Label Content="No adapters found? Attempt to launch this application with administrator privileges." VerticalAlignment="Bottom" HorizontalAlignment="Center" Foreground="Gray" Margin="165,0,90,10" Width="469" />
+            <CheckBox x:Name="AlwaysUseAdvanced" Content="Always use this adapter" HorizontalAlignment="Left" Margin="10,0,0,15" VerticalAlignment="Bottom" Foreground="White"/>
+        </Grid>
+        <Grid x:Name="LoadingDefaultLayout" Visibility="Collapsed">
+            <Label Content="Loading the default adapter..." HorizontalAlignment="Center" Margin="0,0,0,0" VerticalAlignment="Center" Foreground="White" FontSize="34"/>
+            <Label Content="You can disable this in settings." HorizontalAlignment="Center" Margin="0,70,0,0" VerticalAlignment="Center" Foreground="Gray" FontSize="14"/>
         </Grid>
     </Grid>
 </Window>

@@ -64,6 +64,8 @@ namespace Dota2ChatInterface
             }
         }
 
+        public String MAC = null;
+
         // Used to retrieve the actual adapter.
         public int AdapterIndex = -1;
 

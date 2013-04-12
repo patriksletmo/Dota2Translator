@@ -78,7 +78,11 @@ namespace Dota2ChatInterface
 
         #endregion        
 
+        private Boolean HasDefaultAdapter = false;
+        private String DefaultAdapterMAC = "";
+
         private delegate void VoidDelegate();
+        private delegate void LaunchProgramDelegate(int deviceIndex);
 
         public AdapterChooser()
         {
@@ -131,6 +135,16 @@ namespace Dota2ChatInterface
                 adapter.Description = deviceData[i * 3 + 2];
                 adapter.Found = true;
 
+                if (HasDefaultAdapter)
+                {
+                    // Check if this is our default adapter.
+                    if (adapter.MAC.ToLower().Equals(DefaultAdapterMAC.ToLower()))
+                    {
+                        Dispatcher.Invoke(Delegate.CreateDelegate(typeof(LaunchProgramDelegate), this, typeof(AdapterChooser).GetMethod("LaunchProgram")), new object[] { adapter.Index });
+                        return;
+                    }
+                }
+
                 AllAdapters[i] = adapter;
             }
 
@@ -139,6 +153,12 @@ namespace Dota2ChatInterface
 
             // Display the results using the main thread.
             Dispatcher.Invoke(Delegate.CreateDelegate(typeof(VoidDelegate), this, typeof(AdapterChooser).GetMethod("DisplayAdapterResults")), new object[] {} );
+
+            if (HasDefaultAdapter)
+            {
+                // No match for the saved default adapter was found.
+                Dispatcher.Invoke(Delegate.CreateDelegate(typeof(VoidDelegate), this, typeof(AdapterChooser).GetMethod("ShowMainLayout")), new object[] { });
+            }
         }
 
         // Closes the window from another thread.
@@ -214,6 +234,17 @@ namespace Dota2ChatInterface
         // Called when the window has been loaded.
         private void AdapterChooser_Loaded(object sender, EventArgs args)
         {
+            // Check if we have a saved default adapter.
+            SettingsHandler handler = SettingsHandler.GetInstance();
+            if (handler.UseDefaultAdapter)
+            {
+                // Attempt to load the default adapter.
+                HasDefaultAdapter = true;
+                DefaultAdapterMAC = handler.DefaultAdapterMAC;
+                LoadingDefaultLayout.Visibility = Visibility.Visible;
+                MainLayout.Visibility = Visibility.Collapsed;
+            }
+
             // Register button listeners.
             DefaultButton.Click += DefaultButton_Click;
             AdvancedButton.Click += AdvancedButton_Click;
@@ -227,6 +258,16 @@ namespace Dota2ChatInterface
         // Called when DefaultButton has been clicked.
         private void DefaultButton_Click(object sender, EventArgs args)
         {
+            // Check if we want to save this as a default adapter.
+            if (AlwaysUseMain.IsChecked.Value)
+            {
+                // Save the default adapter.
+                SettingsHandler handler = SettingsHandler.GetInstance();
+                handler.DefaultAdapterMAC = DefaultAdapter.MAC.ToLower();
+                handler.UseDefaultAdapter = true;
+                handler.SaveSettings();
+            }
+
             // Launch the program using the default adapter.
             LaunchProgram(DefaultAdapter.Index);
         }
@@ -240,6 +281,7 @@ namespace Dota2ChatInterface
             {
                 NetworkAdapterItem item = new NetworkAdapterItem();
                 item.IP = adapter.IP;
+                item.MAC = adapter.MAC;
                 item.Description = adapter.Description;
                 item.AdapterIndex = adapter.Index;
 
@@ -264,11 +306,22 @@ namespace Dota2ChatInterface
 
             // Start the program using the selected adapter.
             NetworkAdapterItem adapter = (NetworkAdapterItem)AvailableNetworkAdapters.SelectedItem;
+
+            // Check if we want to save this as a default adapter.
+            if (AlwaysUseAdvanced.IsChecked.Value)
+            {
+                // Save the selected adapter.
+                SettingsHandler handler = SettingsHandler.GetInstance();
+                handler.DefaultAdapterMAC = adapter.MAC;
+                handler.UseDefaultAdapter = true;
+                handler.SaveSettings();
+            }
+
             LaunchProgram(adapter.AdapterIndex);
         }
 
         // Starts the program using the specified adapter.
-        private void LaunchProgram(int deviceIndex)
+        public void LaunchProgram(int deviceIndex)
         {
             // Retrieve a pointer to the adapter.
             IntPtr devicePointer = GetDevice(deviceIndex);
@@ -278,6 +331,14 @@ namespace Dota2ChatInterface
 
             // Close this window.
             Close();
+        }
+
+        public void ShowMainLayout()
+        {
+            MessageBox.Show("The default adapter could not be found, please select a new one to start from.\n\nNote that your current default adapter will not be overwritten if you don't explicitly choose to.", "Failed to start using the default adapter");
+
+            MainLayout.Visibility = Visibility.Visible;
+            LoadingDefaultLayout.Visibility = Visibility.Collapsed;
         }
     }
 }

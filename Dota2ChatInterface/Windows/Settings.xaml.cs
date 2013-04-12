@@ -81,6 +81,16 @@ namespace Dota2ChatInterface
             FADE_DURATION.Text = LoadedSettings.FadeDuration.ToString();
             AUTO_MESSAGE_HEIGHT.IsChecked = LoadedSettings.AutoMessageHeight;
             MESSAGE_HEIGHT.Text = LoadedSettings.MessageHeight.ToString();
+
+            if (LoadedSettings.DefaultAdapterMAC.Length > 0)
+            {
+                USE_DEFAULT_ADAPTER.IsChecked = LoadedSettings.UseDefaultAdapter;
+            }
+            else
+            {
+                USE_DEFAULT_ADAPTER.IsChecked = false;
+                USE_DEFAULT_ADAPTER.IsEnabled = false;
+            }
         }
 
         // Called when SaveButton is clicked.
@@ -143,6 +153,7 @@ namespace Dota2ChatInterface
             LoadedSettings.OutputAll = OUTPUT_ALL.IsChecked.Value;
             LoadedSettings.FadeMessages = FADE_MESSAGES.IsChecked.Value;
             LoadedSettings.AutoMessageHeight = AUTO_MESSAGE_HEIGHT.IsChecked.Value;
+            LoadedSettings.UseDefaultAdapter = USE_DEFAULT_ADAPTER.IsChecked.Value;
 
             try
             {
@@ -242,6 +253,8 @@ namespace Dota2ChatInterface
         public double FadeDuration = 2.5;
         public Boolean AutoMessageHeight = true;
         public Int16 MessageHeight = 12;
+        public String DefaultAdapterMAC = "";
+        public Boolean UseDefaultAdapter = false;
         
         // Indicates whether the instance can be saved or not. Only the original instance can be saved.
         private Boolean CanSave = true;
@@ -297,6 +310,8 @@ namespace Dota2ChatInterface
                 FadeDuration = reader.ReadDouble();
                 AutoMessageHeight = reader.ReadBoolean();
                 MessageHeight = reader.ReadInt16();
+                DefaultAdapterMAC = reader.ReadString();
+                UseDefaultAdapter = reader.ReadBoolean();
             }
             catch (Exception)
             {
@@ -343,6 +358,8 @@ namespace Dota2ChatInterface
                 writer.Write(FadeDuration);
                 writer.Write(AutoMessageHeight);
                 writer.Write(MessageHeight);
+                writer.Write(DefaultAdapterMAC);
+                writer.Write(UseDefaultAdapter);
             }
             catch (Exception)
             {
@@ -371,6 +388,8 @@ namespace Dota2ChatInterface
             this.FadeDuration = settingsHandler.FadeDuration;
             this.AutoMessageHeight = settingsHandler.AutoMessageHeight;
             this.MessageHeight = settingsHandler.MessageHeight;
+            this.DefaultAdapterMAC = settingsHandler.DefaultAdapterMAC;
+            this.UseDefaultAdapter = settingsHandler.UseDefaultAdapter;
         }
 
         // Returns a copy of the static instance. This copy can not save itself to disk.
@@ -391,6 +410,8 @@ namespace Dota2ChatInterface
             handler.FadeDuration = this.FadeDuration;
             handler.AutoMessageHeight = this.AutoMessageHeight;
             handler.MessageHeight = this.MessageHeight;
+            handler.DefaultAdapterMAC = this.DefaultAdapterMAC;
+            handler.UseDefaultAdapter = this.UseDefaultAdapter;
 
             return handler;
         }
