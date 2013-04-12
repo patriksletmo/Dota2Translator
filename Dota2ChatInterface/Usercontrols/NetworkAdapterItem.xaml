@@ -6,8 +6,8 @@
              mc:Ignorable="d" 
              d:DesignHeight="100" d:DesignWidth="600" Height="60">
     <Grid Background="#0CFFFFFF">
-        <Label x:Name="ItemIP" Content="192.168.1.70" HorizontalAlignment="Left" Margin="10,00,0,0" VerticalAlignment="Top" Foreground="White" FontSize="22"/>
-        <Label x:Name="ItemDescription" Content="Intel bla bla" HorizontalAlignment="Left" Margin="10,28,0,0" VerticalAlignment="Top" Foreground="White" FontSize="16"/>
+        <Label x:Name="ItemIP" Content="[IP]" HorizontalAlignment="Left" Margin="10,00,0,0" VerticalAlignment="Top" Foreground="White" FontSize="22"/>
+        <Label x:Name="ItemDescription" Content="[Description]" HorizontalAlignment="Left" Margin="10,28,0,0" VerticalAlignment="Top" Foreground="White" FontSize="16"/>
 
     </Grid>
 </UserControl>

@@ -12,8 +12,8 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <Label x:Name="_Scope" Content="[Scope]" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Top" FontSize="22" Foreground="#FF8D8D8D" Grid.ColumnSpan="1" Padding="5,0"/>
-        <Label x:Name="_Sender" Content="Sender:" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top" FontSize="22" Foreground="White" Grid.Column="1" Padding="5,0"/>
-        <TextBlock x:Name="_Message" Margin="0,0,10,0" VerticalAlignment="Top" FontSize="22" Foreground="White" HorizontalAlignment="Left" Text="MessageMessageMessageMessageMessageMessageMessageMessageMessageMessageMessageMessageMessage" Padding="5,0" TextWrapping="Wrap" Grid.Column="2"/>
+        <Label x:Name="_Sender" Content="[Sender]" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top" FontSize="22" Foreground="White" Grid.Column="1" Padding="5,0"/>
+        <TextBlock x:Name="_Message" Margin="0,0,10,0" VerticalAlignment="Top" FontSize="22" Foreground="White" HorizontalAlignment="Left" Text="[Message Content]" Padding="5,0" TextWrapping="Wrap" Grid.Column="2"/>
 
     </Grid>
 </UserControl>
