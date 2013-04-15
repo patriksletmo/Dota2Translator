@@ -42,12 +42,66 @@ namespace Dota2ChatInterface
         // Local copy of the static SettingsHandler.
         private SettingsHandler LoadedSettings;
 
+        // The font loaded from the settings file.
+        private String SavedFont;
+
         public Settings()
         {
             InitializeComponent();
 
             // Register window loaded event.
             Loaded += Window_Loaded;
+        }
+
+        // Adds the installed system fonts to the selection combobox.
+        private void LoadFonts()
+        {
+            // Clear old occurrences.
+            FONT_NAME.Items.Clear();
+
+            // Add every font to the combobox.
+            foreach (System.Drawing.FontFamily font in System.Drawing.FontFamily.Families)
+            {
+                FONT_NAME.Items.Add(font.Name);
+            }
+        }
+
+        // Sets the selected font to the specified one.
+        private void SetFont(String font)
+        {
+            String fontName;
+
+            // Loop over all fonts.
+            for (int i = 0; i < FONT_NAME.Items.Count; i++)
+            {
+                fontName = (String)FONT_NAME.Items[i];
+
+                // Check if the font name in the combobox matches the font name specified.
+                if (font.ToLower().Equals(fontName.ToLower()))
+                {
+                    // Set the current item and return.
+                    FONT_NAME.SelectedIndex = i;
+                    return;
+                }
+            }
+        }
+
+        // Attempts to return the family name of the currently selected font. If no font is selected the saved value is return.
+        private String GetFont()
+        {
+            // Check that our current selection is not out of bounds.
+            if (FONT_NAME.SelectedIndex != -1 && FONT_NAME.SelectedIndex < FONT_NAME.Items.Count)
+            {
+                // Retrieve the font.
+                String font = (String)FONT_NAME.Items[FONT_NAME.SelectedIndex];
+
+                // Don't return a null font.
+                if (font != null)
+                    return font;
+            }
+
+            // Return the saved font.
+            return SavedFont;
         }
 
         // Called when the window has been loaded.
@@ -59,18 +113,22 @@ namespace Dota2ChatInterface
             DefaultFontButton.Click += DefaultFontButton_Click;
 
             // Register easter egg (spoiler?)
-            FONT_NAME.TextChanged += FontName_TextChanged;
+            FONT_NAME.SelectionChanged += FontName_SelectionChanged;
 
             // Register event for AutoMessageHeight change.
             AUTO_MESSAGE_HEIGHT.Checked += AUTO_MESSAGE_HEIGHT_Checked;
             AUTO_MESSAGE_HEIGHT.Unchecked += AUTO_MESSAGE_HEIGHT_Checked;
+
+            // Load fonts.
+            LoadFonts();
 
             // Load settings.
             LoadedSettings = SettingsHandler.CloneInstance();
 
             // Fill settings in input fields.
             EXE_NAME.Text = LoadedSettings.ExeName;
-            FONT_NAME.Text = LoadedSettings.FontName;
+            SavedFont = LoadedSettings.FontName;
+            SetFont(SavedFont);
             MESSAGES_SHOWN.Text = LoadedSettings.MessagesShown.ToString();
             TRANSLATE_TO.Text = LoadedSettings.TranslateTo;
             AUTO_HIDE.IsChecked = LoadedSettings.AutoHide;
@@ -119,14 +177,14 @@ namespace Dota2ChatInterface
         private void DefaultFontButton_Click(object sender, EventArgs args)
         {
             // Reset font name to default.
-            FONT_NAME.Text = "Segoe UI";
+            SetFont("Segoe UI");
         }
 
         // Called when the user (or the application) changes the font name.
-        public void FontName_TextChanged(object sender, EventArgs args)
+        public void FontName_SelectionChanged(object sender, EventArgs args)
         {
             // Shows easter egg if Comic Sans MS is selected.
-            String font = FONT_NAME.Text.Trim().ToLower();
+            String font = GetFont().ToLower();
             Boolean comicSans = font.Equals("comic sans ms");
             IsComicSans.Visibility = comicSans ? Visibility.Visible : Visibility.Collapsed;
             DefaultFontButton.Visibility = comicSans ? Visibility.Hidden : Visibility.Visible;
@@ -146,7 +204,7 @@ namespace Dota2ChatInterface
             Boolean parsingError = false;
 
             LoadedSettings.ExeName = EXE_NAME.Text.Trim(); // One does not simply use whitespace right before or after the file extension.
-            LoadedSettings.FontName = FONT_NAME.Text.Trim();
+            LoadedSettings.FontName = GetFont();
             LoadedSettings.TranslateTo = TRANSLATE_TO.Text.Trim();
             LoadedSettings.AutoHide = AUTO_HIDE.IsChecked.Value;
             LoadedSettings.AddOnStartup = ADD_ON_STARTUP.IsChecked.Value;
