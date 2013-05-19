@@ -37,3 +37,4 @@ typedef void (__stdcall *Dota_ChatMessage_Callback)(Dota_ChatMessage data);
 std::string _GetDeviceList();
 pcap_if_t* _GetDevice(int inum);
 void _StartDevice(pcap_if_t* d, Dota_ChatMessage_Callback callback);
+void _SetAutoDetectPort(bool autoDetect);

@@ -34,6 +34,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.IO;
 using System.Globalization;
+using System.Runtime.InteropServices;
 
 namespace Dota2ChatInterface
 {
@@ -139,6 +140,7 @@ namespace Dota2ChatInterface
             FADE_DURATION.Text = LoadedSettings.FadeDuration.ToString();
             AUTO_MESSAGE_HEIGHT.IsChecked = LoadedSettings.AutoMessageHeight;
             MESSAGE_HEIGHT.Text = LoadedSettings.MessageHeight.ToString();
+            AUTO_DETECT_PORT.IsChecked = LoadedSettings.AutoDetectPort;
 
             if (LoadedSettings.DefaultAdapterMAC.Length > 0)
             {
@@ -160,6 +162,7 @@ namespace Dota2ChatInterface
             // Save to file.
             SettingsHandler.MergeAndSave(LoadedSettings);
             SettingsHandler.SendToOverlay();
+            SettingsHandler.SendToDLL();
 
             // Close the window if there was no parsing error.
             if (closeWindow)
@@ -212,6 +215,7 @@ namespace Dota2ChatInterface
             LoadedSettings.FadeMessages = FADE_MESSAGES.IsChecked.Value;
             LoadedSettings.AutoMessageHeight = AUTO_MESSAGE_HEIGHT.IsChecked.Value;
             LoadedSettings.UseDefaultAdapter = USE_DEFAULT_ADAPTER.IsChecked.Value;
+            LoadedSettings.AutoDetectPort = AUTO_DETECT_PORT.IsChecked.Value;
 
             try
             {
@@ -295,6 +299,10 @@ namespace Dota2ChatInterface
 
     public class SettingsHandler
     {
+        // Sets whether or not to automatically detect the port in the Dota2ChatDLL.dll.
+        [DllImport("Dota2ChatDLL.dll")]
+        private static extern void SetAutoDetectPort(bool autoDetect);
+
         // Constants for storing of the settings.
         private const String FileName = "Settings.cfg";
 
@@ -313,6 +321,7 @@ namespace Dota2ChatInterface
         public Int16 MessageHeight = 12;
         public String DefaultAdapterMAC = "";
         public Boolean UseDefaultAdapter = false;
+        public Boolean AutoDetectPort = true;
         
         // Indicates whether the instance can be saved or not. Only the original instance can be saved.
         private Boolean CanSave = true;
@@ -370,6 +379,7 @@ namespace Dota2ChatInterface
                 MessageHeight = reader.ReadInt16();
                 DefaultAdapterMAC = reader.ReadString();
                 UseDefaultAdapter = reader.ReadBoolean();
+                AutoDetectPort = reader.ReadBoolean();
             }
             catch (Exception)
             {
@@ -380,6 +390,9 @@ namespace Dota2ChatInterface
                 if (reader != null)
                     reader.Close();
             }
+
+            // Our DLL will always be accessible, send the changes.
+            SendChangesToDLL();
         }
 
         // Saves the current settings to disk.
@@ -418,6 +431,7 @@ namespace Dota2ChatInterface
                 writer.Write(MessageHeight);
                 writer.Write(DefaultAdapterMAC);
                 writer.Write(UseDefaultAdapter);
+                writer.Write(AutoDetectPort);
             }
             catch (Exception)
             {
@@ -448,6 +462,7 @@ namespace Dota2ChatInterface
             this.MessageHeight = settingsHandler.MessageHeight;
             this.DefaultAdapterMAC = settingsHandler.DefaultAdapterMAC;
             this.UseDefaultAdapter = settingsHandler.UseDefaultAdapter;
+            this.AutoDetectPort = settingsHandler.AutoDetectPort;
         }
 
         // Returns a copy of the static instance. This copy can not save itself to disk.
@@ -470,6 +485,7 @@ namespace Dota2ChatInterface
             handler.MessageHeight = this.MessageHeight;
             handler.DefaultAdapterMAC = this.DefaultAdapterMAC;
             handler.UseDefaultAdapter = this.UseDefaultAdapter;
+            handler.AutoDetectPort = this.AutoDetectPort;
 
             return handler;
         }
@@ -485,6 +501,12 @@ namespace Dota2ChatInterface
             InjectionHelper.SendSetting("FadeDuration", this.FadeDuration);
             InjectionHelper.SendSetting("AutoMessageHeight", this.AutoMessageHeight);
             InjectionHelper.SendSetting("MessageHeight", this.MessageHeight);
+        }
+
+        // Sends the relevant settings to the DLL.
+        public void SendChangesToDLL()
+        {
+            SetAutoDetectPort(this.AutoDetectPort);
         }
 
         // Returns the static instance or creates one if none is available.
@@ -533,6 +555,16 @@ namespace Dota2ChatInterface
 
             // Send the changes to the overlay.
             Instance.SendChangesToOverlay();
+        }
+
+        // Static access to SettingsHandler.SendChangesToDLL().
+        public static void SendToDLL()
+        {
+            // Make sure there is an instance available.
+            GetInstance();
+
+            // Send the changes to the DLL.
+            Instance.SendChangesToDLL();
         }
 
     }

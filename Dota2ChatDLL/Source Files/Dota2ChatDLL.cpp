@@ -47,3 +47,8 @@ extern "C" __declspec(dllexport) void __stdcall StartDevice(pcap_if_t* d, Dota_C
 {
 	_StartDevice(d, callback);
 }
+
+extern "C" __declspec(dllexport) void __stdcall SetAutoDetectPort(bool autoDetect)
+{
+	_SetAutoDetectPort(autoDetect);
+}

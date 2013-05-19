@@ -32,6 +32,7 @@ THE SOFTWARE.
 #include "sniff.h"
 #include <winsock2.h>
 #include <IPHlpApi.h>
+#include <TlHelp32.h>
 #pragma comment(lib, "IPHLPAPI.lib")
 
 using namespace std;
@@ -47,12 +48,20 @@ struct Addresses
 void HandleIPPacket(unsigned char *data, int length, int more, Dota_ChatMessage_Callback callback);
 void HandleUDPPacket(unsigned char *data, int length, int more, Dota_ChatMessage_Callback callback);
 bool ExamineTime();
-void ReportTime();
+double GetTimeDiff(time_t t, double defaultValue);
+void ReportTime(time_t *t);
+void RetrievePIDs(int *resultBuffer, int *resultLength, int maxLength);
 Addresses GetAdapterMAC(pcap_if_t* Device);
 
 // Constants identifying the chat messages.
 const wstring ALL_CHAT_IDENTIFIER = L"DOTA_Chat_All";
 const wstring TEAM_CHAT_IDENTIFIER = L"DOTA_Chat_Team";
+
+// Amount of seconds to wait before each automatic port scan.
+const int AUTO_DETECT_RATE = 10;
+
+// The port to use if autodetection is off.
+const int DEFAULT_PORT = 27005;
 
 // Stored instance of all queried devices, in order to access the correct device using a number later.
 pcap_if_t *Alldevs;
@@ -60,6 +69,19 @@ pcap_if_t *Alldevs;
 // Used for hiding the overlay when disconnected from a match.
 time_t LastPacket = NULL;
 bool Hidden = false;
+
+// Whether or not to automatically detect the port number(s).
+bool AutoDetectPort = true;
+
+// The time of the last automated port scan.
+time_t LastScan = NULL;
+
+// An array containing all the detected ports.
+int *DetectedPorts;
+int DetectedPortsLength = 0;
+
+// The name of the Dota executable.
+WCHAR *ExecutableName = L"dota.exe";
 
 // Returns an Addresses struct containing the MAC and IP address of the specified device.
 Addresses GetAdapterMAC(pcap_if_t* Device)
@@ -218,10 +240,67 @@ void _StartDevice(pcap_if_t* d, Dota_ChatMessage_Callback callback)
 			// Mark the overlay as not hidden.
 			Hidden = false;
 		}
+
+		bool updatePorts = AutoDetectPort && GetTimeDiff(LastScan, 10) >= 10;
+		if (updatePorts)
+		{
+			// Retrieve the PIDs representing a Dota 2 executable.
+			int dotaPIDs[16];
+			int numPIDs;
+			RetrievePIDs(dotaPIDs, &numPIDs, 16); // Limit the results to 16 PIDs. It's hard to imagine a possible scenario where one would want to have this many Dota 2 instances running simultaneously.
+
+			MIB_UDPTABLE_OWNER_PID *table;
+			DWORD buffSize;
+
+			// Retrieve the structure size.
+			GetExtendedUdpTable(NULL, &buffSize, false, AF_INET, UDP_TABLE_OWNER_PID, 0);
+
+			// Alloc the structure memory and retrieve the table.
+			table = (MIB_UDPTABLE_OWNER_PID *) malloc(buffSize);
+			GetExtendedUdpTable(table, &buffSize, false, AF_INET, UDP_TABLE_OWNER_PID, 0);
+
+			DWORD numEntries = table->dwNumEntries;
+
+			// Reset the port list.
+			DetectedPorts = (int *)malloc(numEntries);
+			DetectedPortsLength = 0;
+			
+			for (int i = 0; i < numEntries; i++)
+			{
+				MIB_UDPROW_OWNER_PID row = table->table[i];
+				int pid = row.dwOwningPid;
+				int port = ntohs(row.dwLocalPort);
+
+				// Loop over every found PID and check if there's a match.
+				bool isDota = false;
+				for (int j = 0; j < numPIDs; j++)
+				{
+					if (dotaPIDs[j] == pid)
+					{
+						isDota = true;
+						break;
+					}
+				}
+
+				if (isDota)
+				{
+					// Add the port to the list.
+					DetectedPorts[DetectedPortsLength] = port;
+					DetectedPortsLength++;
+				}
+			}
+
+			ReportTime(&LastScan);
+		}
 	}
 
 	// Close the opened device.
 	pcap_close(fp);
+}
+
+void _SetAutoDetectPort(bool autoDetect)
+{
+	AutoDetectPort = autoDetect;
 }
 
 // Processes the specified packet.
@@ -237,23 +316,58 @@ static void HandleIPPacket(unsigned char *data, int length, int more, Dota_ChatM
 // Returns true if a specific amount of time has passed since the last packet.
 bool ExamineTime()
 {
-	// Don't hide if no Dota packet has been received.
-	if (LastPacket == NULL)
-		return false;
-
-	time_t now;
-	time(&now);
-
-	double diff = difftime(now, LastPacket);
+	double diff = GetTimeDiff(LastPacket, 0);
 
 	// Return true if no packet has been received in the last 2 seconds.
 	return diff > 1;
 }
 
-// Reports the time of the last packet.
-void ReportTime()
+double GetTimeDiff(time_t t, double defaultValue)
 {
-	time(&LastPacket);
+	// Return default value if the parameter is NULL.
+	if (t == NULL)
+		return defaultValue;
+
+	time_t now;
+	time(&now);
+
+	return difftime(now, t);
+}
+
+// Reports the time of the last packet.
+void ReportTime(time_t *t)
+{
+	time(t);
+}
+
+void RetrievePIDs(int *resultBuffer, int *resultLength, int maxLength)
+{
+	PROCESSENTRY32 entry;
+	entry.dwSize = sizeof(PROCESSENTRY32);
+
+	HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, NULL);
+
+	// Loop over every open program.
+	int offset = 0;
+	if ((Process32First(snapshot, &entry) == TRUE))
+	{
+		while (Process32Next(snapshot, &entry) == TRUE)
+		{
+			// Check if the program is Dota using it's executable name.
+			if (_wcsicmp(entry.szExeFile, ExecutableName) == 0)
+			{
+				// Add the PID to the result buffer.
+				resultBuffer[offset] = entry.th32ProcessID;
+				offset++;
+
+				// Avoid buffer overflows.
+				if (offset >= maxLength)
+					break;
+			}
+		}
+	}
+
+	*resultLength = offset;
 }
 
 // Processes the specified UDP packet.
@@ -261,11 +375,29 @@ static void HandleUDPPacket(unsigned char *data, int length, int more, Dota_Chat
 {
 	int port_dst = (data[2]*256)+data[3];
 
-	// Dota 2 game traffic is received on port 27005.
-	if (port_dst == 27005)
+	bool portMatch = false;
+	if (AutoDetectPort && DetectedPortsLength > 0) // Fall back to manual mode if no port has been detected.
+	{
+		// Check if the port is used by any Dota 2 process.
+		for (int i = 0; i < DetectedPortsLength; i++)
+		{
+			if (port_dst == DetectedPorts[i])
+			{
+				portMatch = true;
+				break;
+			}
+		}
+	}
+	else
+	{
+		// Manual mode, use the default port.
+		portMatch = port_dst == DEFAULT_PORT;
+	}
+
+	if (portMatch)
 	{
 		// Report the time of the received Dota 2 packet. The overlay will be hidden if this method is not called more often than every 2 seconds.
-		ReportTime();
+		ReportTime(&LastPacket);
 
 		// Strip away the UDP fields.
 		unsigned char* data2 = data+8;
