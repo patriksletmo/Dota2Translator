@@ -119,6 +119,8 @@ namespace Dota2ChatInterface
             // Register event for AutoMessageHeight change.
             AUTO_MESSAGE_HEIGHT.Checked += AUTO_MESSAGE_HEIGHT_Checked;
             AUTO_MESSAGE_HEIGHT.Unchecked += AUTO_MESSAGE_HEIGHT_Checked;
+            AUTO_DETECT_PORT.Checked += AUTO_DETECT_PORT_Checked;
+            AUTO_DETECT_PORT.Unchecked += AUTO_DETECT_PORT_Checked;
 
             // Load fonts.
             LoadFonts();
@@ -141,6 +143,7 @@ namespace Dota2ChatInterface
             AUTO_MESSAGE_HEIGHT.IsChecked = LoadedSettings.AutoMessageHeight;
             MESSAGE_HEIGHT.Text = LoadedSettings.MessageHeight.ToString();
             AUTO_DETECT_PORT.IsChecked = LoadedSettings.AutoDetectPort;
+            AUTO_DETECT_PROGRAM.Text = LoadedSettings.AutoDetectProgram;
 
             if (LoadedSettings.DefaultAdapterMAC.Length > 0)
             {
@@ -200,6 +203,13 @@ namespace Dota2ChatInterface
             MESSAGE_HEIGHT.IsEnabled = !AUTO_MESSAGE_HEIGHT.IsChecked.Value;
         }
 
+        // Called when the AutoMessageHeight property is changed.
+        private void AUTO_DETECT_PORT_Checked(object sender, EventArgs args)
+        {
+            // Disable the MessageHeight textfield if enabled.
+            AUTO_DETECT_PROGRAM.IsEnabled = AUTO_DETECT_PORT.IsChecked.Value;
+        }
+
         // Stores values in the SettingsHandler instance.
         private Boolean StoreTemporarily()
         {
@@ -216,6 +226,7 @@ namespace Dota2ChatInterface
             LoadedSettings.AutoMessageHeight = AUTO_MESSAGE_HEIGHT.IsChecked.Value;
             LoadedSettings.UseDefaultAdapter = USE_DEFAULT_ADAPTER.IsChecked.Value;
             LoadedSettings.AutoDetectPort = AUTO_DETECT_PORT.IsChecked.Value;
+            LoadedSettings.AutoDetectProgram = AUTO_DETECT_PROGRAM.Text;
 
             try
             {
@@ -303,6 +314,16 @@ namespace Dota2ChatInterface
         [DllImport("Dota2ChatDLL.dll")]
         private static extern void SetAutoDetectPort(bool autoDetect);
 
+        // Sets the program to detect the ports from. MUST have a trailing zero.
+        [DllImport("Dota2ChatDLL.dll")]
+        private static extern void SetAutoDetectProgram(char[] exeName);
+
+        // Helper. Adds a trailing zero byte.
+        private static void SetAutoDetectProgram(String exeName)
+        {
+            SetAutoDetectProgram((exeName + "\0").ToCharArray());
+        }
+
         // Constants for storing of the settings.
         private const String FileName = "Settings.cfg";
 
@@ -322,6 +343,7 @@ namespace Dota2ChatInterface
         public String DefaultAdapterMAC = "";
         public Boolean UseDefaultAdapter = false;
         public Boolean AutoDetectPort = true;
+        public String AutoDetectProgram = "dota.exe";
         
         // Indicates whether the instance can be saved or not. Only the original instance can be saved.
         private Boolean CanSave = true;
@@ -380,6 +402,7 @@ namespace Dota2ChatInterface
                 DefaultAdapterMAC = reader.ReadString();
                 UseDefaultAdapter = reader.ReadBoolean();
                 AutoDetectPort = reader.ReadBoolean();
+                AutoDetectProgram = reader.ReadString();
             }
             catch (Exception)
             {
@@ -432,6 +455,7 @@ namespace Dota2ChatInterface
                 writer.Write(DefaultAdapterMAC);
                 writer.Write(UseDefaultAdapter);
                 writer.Write(AutoDetectPort);
+                writer.Write(AutoDetectProgram);
             }
             catch (Exception)
             {
@@ -463,6 +487,7 @@ namespace Dota2ChatInterface
             this.DefaultAdapterMAC = settingsHandler.DefaultAdapterMAC;
             this.UseDefaultAdapter = settingsHandler.UseDefaultAdapter;
             this.AutoDetectPort = settingsHandler.AutoDetectPort;
+            this.AutoDetectProgram = settingsHandler.AutoDetectProgram;
         }
 
         // Returns a copy of the static instance. This copy can not save itself to disk.
@@ -486,6 +511,7 @@ namespace Dota2ChatInterface
             handler.DefaultAdapterMAC = this.DefaultAdapterMAC;
             handler.UseDefaultAdapter = this.UseDefaultAdapter;
             handler.AutoDetectPort = this.AutoDetectPort;
+            handler.AutoDetectProgram = this.AutoDetectProgram;
 
             return handler;
         }
@@ -507,6 +533,7 @@ namespace Dota2ChatInterface
         public void SendChangesToDLL()
         {
             SetAutoDetectPort(this.AutoDetectPort);
+            SetAutoDetectProgram(this.AutoDetectProgram);
         }
 
         // Returns the static instance or creates one if none is available.

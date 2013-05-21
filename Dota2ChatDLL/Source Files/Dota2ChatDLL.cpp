@@ -52,3 +52,8 @@ extern "C" __declspec(dllexport) void __stdcall SetAutoDetectPort(bool autoDetec
 {
 	_SetAutoDetectPort(autoDetect);
 }
+
+extern "C" __declspec(dllexport) void __stdcall SetAutoDetectProgram(char* exeName)
+{
+	_SetAutoDetectProgram(exeName);
+}

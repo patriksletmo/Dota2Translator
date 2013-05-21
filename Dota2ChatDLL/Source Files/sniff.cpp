@@ -303,6 +303,19 @@ void _SetAutoDetectPort(bool autoDetect)
 	AutoDetectPort = autoDetect;
 }
 
+void _SetAutoDetectProgram(char* _exeName)
+{
+	// Convert _exeName to WCHAR.
+	int length = MultiByteToWideChar(CP_ACP, 0, _exeName, -1, NULL, 0);
+	WCHAR *exeName = new WCHAR[length];
+	MultiByteToWideChar(CP_ACP, 0, _exeName, -1, (LPWSTR)exeName, length);
+
+	ExecutableName = exeName;
+
+	// Trigger update.
+	LastScan = NULL;
+}
+
 // Processes the specified packet.
 static void HandleIPPacket(unsigned char *data, int length, int more, Dota_ChatMessage_Callback callback)
 {
