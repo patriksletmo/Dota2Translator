@@ -301,6 +301,9 @@ void _StartDevice(pcap_if_t* d, Dota_ChatMessage_Callback callback)
 void _SetAutoDetectPort(bool autoDetect)
 {
 	AutoDetectPort = autoDetect;
+
+	// Trigger update.
+	LastScan = NULL;
 }
 
 void _SetAutoDetectProgram(char* _exeName)
